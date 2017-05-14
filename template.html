@@ -12,12 +12,18 @@
 <body>
 
     <header>
-        <nav>
-            <div class="container">
-                <div class="logo"></div>
-                <div class="navbar-content"></div>
-                <div class="navbar-right"></div>
-            </div>
+        <nav class="navbar">
+            <ul class="container">
+                <li>
+                    <div class="logo">Qiu</div>
+                </li>
+                <li class="navbar-content"></li>
+                <li class="navbar-right">
+                    <label class="btn-add">添加书籍
+                        <input type="file" id="add-book">
+                    </label>
+                </li>
+            </ul>
         </nav>
     </header>
 
@@ -27,13 +33,14 @@
             <div class="book-head bg-5">
                 <div class="cover">
                     <div class="cover-border">
+                        <!--TODO: 字数过多则省略-->
                         <div class="book-title">你不知道的JavaScript</div>
                     </div>
                 </div>
                 <div class="mask-content">
                     <div class="mak-top clear">
-                        <i class="icon-delete right"></i>
-                        <i class="icon-edit right"></i>
+                        <i class="icon-delete right" title="删除书籍"></i>
+                        <i class="icon-edit right" title="编辑书籍信息"></i>
                     </div>
                     <div class="mask-bottom">
                         <button href="#!" class="btn-flat">OPEN BOOK</button>

@@ -7,6 +7,14 @@
     color: #0470BA;
 }
 
+.text-green {
+    color: #B6EFCA;
+}
+
+.text-dark-green {
+    color: #7EE2CF;
+}
+
 .text-brown {
     color: #B1A29C;
 }
@@ -27,6 +35,6 @@
     color: #F5C28A;
 }
 
-..text-dark-orange {
+.text-dark-orange {
     color: #F5AD8A;
 }
