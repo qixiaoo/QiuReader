@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>IndexedDBTest</title>
+</head>
+
+<body>
+
+    <script>
+        var request = indexedDB.open('users', 2);
+        var db;
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            // 创建一个对象存储空间来持有有关我们客户的信息。
+            // 我们将使用 "ssn" 作为我们的 key path 因为它保证是唯一的。
+            var store = db.createObjectStore("users", {
+                keyPath: "name"
+            });
+
+            var request = store.add({
+                name: 'qin',
+                age: 12
+            });
+
+            request.onsuccess = function(event) {
+                console.log(event.target.result);
+            };
+
+            request.onerror = function(event) {
+                console.log('error');
+            }
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+
+            var t = db.transaction('users', 'readonly');
+            var store = t.objectStore('users');
+            var req = store.get('qin');
+            
+
+            req.onsuccess = function(e) {
+                console.log(e.target.result);
+            };
+        };
+    </script>
+</body>
+
+</html>
