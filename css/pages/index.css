@@ -4,84 +4,6 @@
     box-sizing: border-box;
 }
 
-/* background */
-
-.bg-1 {
-    background-image: url(../img/1.jpg);
-}
-
-.bg-2 {
-    background-image: url(../img/2.jpg);
-}
-
-.bg-3 {
-    background-image: url(../img/3.jpg);
-}
-
-.bg-4 {
-    background-image: url(../img/4.jpg);
-}
-
-.bg-5 {
-    background-image: url(../img/5.gif);
-}
-
-/* icon */
-
-[class*='icon-'] {
-    display: inline-block;
-    background-repeat: no-repeat;
-    background-position: center;
-    min-width: 16px;
-    min-height: 16px;
-    margin-right: 5px;
-}
-
-.icon-delete {
-    background-image: url(../img/delete.png);
-}
-
-.icon-delete:hover {
-    background-image: url(../img/delete-d.png);
-}
-
-.icon-edit {
-    background-image: url(../img/edit.png);
-}
-
-.icon-edit:hover {
-    background-image: url(../img/edit-d.png);
-}
-
-/* button */
-
-[class*='btn-'] {
-    display: inline-block;
-    border-width: .125em;
-    border-style: solid;
-    border-radius: .25em;
-    padding: .5em;
-    cursor: pointer;
-    transition: .3s;
-}
-
-.btn-flat {
-    color: white;
-}
-
-.btn-flat:hover {
-    color: #1a1a1a;
-    border-color: white;
-    background-color: white;
-}
-
-.btn-prime {
-    color: white;
-    font-size: 14px;
-    background-color: #1CBAA2;
-    border-color: #1CBAA2;
-}
-
 /* layout */
 
 .container {
@@ -116,9 +38,19 @@ main {
     
 }
 
+/*TODO: 响应式*/
+.book-list {
+    width: 1200px;
+    margin: auto;
+    overflow: auto; /* 清除浮动 */
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .book {
     width: 260px;
     margin: 20px;
+    /*float: left;*/
     border-radius: 5px;
     overflow: hidden;
     background-color: #FFF;

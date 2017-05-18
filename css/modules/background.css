@@ -1,0 +1,21 @@
+/* background */
+
+.bg-1 {
+    background-image: url(../../img/1.jpg);
+}
+
+.bg-2 {
+    background-image: url(../../img/2.jpg);
+}
+
+.bg-3 {
+    background-image: url(../../img/3.jpg);
+}
+
+.bg-4 {
+    background-image: url(../../img/4.jpg);
+}
+
+.bg-5 {
+    background-image: url(../../img/5.gif);
+}

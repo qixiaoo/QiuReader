@@ -1,0 +1,28 @@
+/* button */
+
+[class*='btn-'] {
+    display: inline-block;
+    border-width: .125em;
+    border-style: solid;
+    border-radius: .25em;
+    padding: .5em;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.btn-flat {
+    color: white;
+}
+
+.btn-flat:hover {
+    color: #1a1a1a;
+    border-color: white;
+    background-color: white;
+}
+
+.btn-prime {
+    color: white;
+    font-size: 14px;
+    background-color: #1CBAA2;
+    border-color: #1CBAA2;
+}

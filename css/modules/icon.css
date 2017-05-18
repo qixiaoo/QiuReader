@@ -1,0 +1,26 @@
+/* icon */
+
+[class*='icon-'] {
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 16px;
+    min-height: 16px;
+    margin-right: 5px;
+}
+
+.icon-delete {
+    background-image: url(../../img/delete.png);
+}
+
+.icon-delete:hover {
+    background-image: url(../../img/delete-d.png);
+}
+
+.icon-edit {
+    background-image: url(../../img/edit.png);
+}
+
+.icon-edit:hover {
+    background-image: url(../../img/edit-d.png);
+}
