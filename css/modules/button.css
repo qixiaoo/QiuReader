@@ -2,10 +2,12 @@
 
 [class*='btn-'] {
     display: inline-block;
-    border-width: .125em;
+    min-width: 4rem;
+    border-width: 1px;
     border-style: solid;
     border-radius: .25em;
-    padding: .5em;
+    padding: .4em 1.25em;
+    text-align: center;
     cursor: pointer;
     transition: .3s;
 }
@@ -25,4 +27,17 @@
     font-size: 14px;
     background-color: #1CBAA2;
     border-color: #1CBAA2;
+}
+
+.btn-prime:hover {
+    box-shadow: 1px 2px 4px 0 rgba(0,0,0,.2);
+}
+
+.btn-tip {
+    border: none;
+    font-size: .875rem;
+}
+
+.btn-tip:hover {
+    background-color: #e0e0e0;
 }

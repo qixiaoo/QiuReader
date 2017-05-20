@@ -9,17 +9,38 @@
 html, body {
     height: 100%;
     background-color: #F2F4F5;
+    font-family: sans-serif;
 }
 
 main {
-    
+    position: relative;
+    height: calc(100% - 60px);
+}
+
+.welcome {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 50%;
+    padding: 20px;
+    font-size: 1.25rem;
+    text-align: center;
+    background-color: #fff;
+    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, .12);
+}
+
+.welcome-info > p {
+    text-align: center;
+    margin-bottom: 5px;
 }
 
 /*TODO: 响应式*/
 .book-list {
     width: 1200px;
     margin: auto;
-    overflow: auto; /* 清除浮动 */
+    overflow: auto;
     display: flex;
     flex-wrap: wrap;
 }
@@ -41,7 +62,7 @@ main {
 
 .book-head {
     position: relative;
-    
+
     width: 260px;
     height: 160px;
     padding: 25px 35px;
@@ -51,7 +72,7 @@ main {
 
 .cover {
     position: relative;
-    
+
     width: 190px;
     height: 110px;
     background-color: #FFF;
@@ -64,7 +85,7 @@ main {
     left: 0;
     right: 0;
     margin: auto;
-    
+
     width: 150px;
     height: 70px;
     border: 2px solid #000;
@@ -88,7 +109,7 @@ main {
     position: absolute;
     top: 0;
     left: 0;
-    
+
     width: 100%;
     height: 100%;
     visibility: hidden;
@@ -100,7 +121,7 @@ main {
     position: absolute;
     top: 0;
     left: 0;
-    
+
     width: 100%;
     height: 100%;
     padding: 15px;
@@ -125,12 +146,14 @@ main {
     transform: translate(-50%, -50%);
 }
 
-nav {
-    width: 100%;
-    height: 60px;
+.logo {
+    font-family: 'Titillium Web', sans-serif;
+    font-size: 1.5rem;
 }
 
 .navbar {
+    width: 100%;
+    height: 60px;
     background-color: white;
     box-shadow: 0 .5px 1px rgba(0, 0, 0, .15);
 }

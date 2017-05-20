@@ -4,12 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <title>QiuReader</title>
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web&text=Qiu" rel="stylesheet">
+    <link rel="stylesheet" href="css/base/reset.css">
+    <link rel="stylesheet" href="css/modules/common.css">
+    <link rel="stylesheet" href="css/modules/background.css">
+    <link rel="stylesheet" href="css/modules/button.css">
+    <link rel="stylesheet" href="css/modules/color.css">
+    <link rel="stylesheet" href="css/modules/icon.css">
     <link rel="stylesheet" href="css/pages/index.css">
 </head>
 
 <body>
 
-    <script type="text/javascript"></script>
+<header>
+    <nav class="navbar">
+        <ul class="container">
+            <li>
+                <div class="logo">Qiu</div>
+            </li>
+            <li class="navbar-content"></li>
+            <li class="navbar-right">
+                <label class="btn-prime">添加书籍
+                    <input type="file" accept="application/epub+zip" id="add-book">
+                </label>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="welcome hidden">
+        <div class="welcome-info">
+            <p>空空如也~</p>
+            <p>点击右上方按钮添加书籍吧！</p>
+            <button class="btn-tip" id="welcome-close">知道了</button>
+        </div>
+    </div>
+    <div class="book-list">
+        <!--这是一本书籍-->
+    </div>
+</main>
+
+<script type="text/javascript" src="js/lib/zip.min.js"></script>
+<script type="text/javascript" src="js/lib/epub.js"></script>
+<script type="text/javascript" src="js/bookDB.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
 </body>
 
 </html>

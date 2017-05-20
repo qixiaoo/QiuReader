@@ -1,5 +1,18 @@
 var bookStr = '<div class="book-head {background}"><div class="cover"><div class="cover-border"><div class="book-title">{book-name}</div></div></div><div class="mask-content"><div class="mak-top clear"><i class="icon-delete right" title="删除书籍"></i><i class="icon-edit right" title="编辑书籍信息"></i></div><div class="mask-bottom"><button class="open-book btn-flat">OPEN BOOK</button></div></div><div class="mask"></div></div><div class="book-body"><div class="author-box"><span>作者：</span><span>{author}</span></div></div><div class="book-control"></div>';
 
+var welcome = {
+    isVisible: true
+};
+
+Object.defineProperty(welcome, 'visible', {
+    set: function (val) {
+        this.isVisible = val;
+        var welcome = document.getElementsByClassName('welcome')[0];
+        welcome.className = val ? 'welcome' : 'welcome hidden';
+    }
+});
+
+
 // 添加书籍按钮的事件处理程序
 document.getElementById('add-book')
     .addEventListener('change', function (e) {
@@ -64,13 +77,30 @@ document.getElementsByClassName('book-list')[0]
 document.getElementsByClassName('book-list')[0]
     .addEventListener('click', function (e) {
         var target = e.target;
+        var self = this;
         if (target && target.nodeName.toLocaleLowerCase() === 'i' && target.className.indexOf('delete') !== -1) {
             var book = target
                 .parentNode
                 .parentNode
                 .parentNode
                 .parentNode;
-            this.removeChild(book);
+
+            bookDB.open(
+                function () {
+                    var key = book.getAttribute('data-key');
+                    bookDB.deleteBook(
+                        key,
+                        function () {
+                            self.removeChild(book);
+                            // 检查是否书籍列表是否为空，判断是否展示 welcome 面板
+                            welcome.visible = document.getElementsByClassName('book').length === 0;
+                        },
+                        function () {
+                            alert('删除书籍失败，请刷新重试');
+                        }
+                    );
+                }
+            );
         }
     });
 
@@ -90,6 +120,12 @@ document.getElementsByClassName('book-list')[0]
         }
     });
 
+// welcome 面板隐藏按钮的事件处理程序
+document.getElementById('welcome-close')
+    .addEventListener('click', function () {
+        welcome.visible = false;
+    });
+
 // 打开页面时初始化书籍列表
 function init() {
     'use strict';
@@ -97,9 +133,10 @@ function init() {
     bookDB.open(function () {
         bookDB.getBooks(
             function (books) {
-                console.log(books);
+                welcome.visible = books.length === 0;
+
                 books.forEach(function (book) {
-                    addBookToPage(book)
+                    addBookToPage(book);
                 });
             },
             function () {
@@ -120,6 +157,7 @@ function addBookToPage(obj) {
 
     bg = 'bg-' + nextBG();
 
+    welcome.visible = false; // 确保关闭了 welcome 面板
     book.className = 'book';
     book.setAttribute('data-key', obj.key);
     // 添加书籍名，其他信息
