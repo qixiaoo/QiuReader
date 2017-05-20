@@ -4,29 +4,6 @@
     box-sizing: border-box;
 }
 
-/* layout */
-
-.container {
-    width: 75%;
-    margin: auto;
-}
-
-.left {
-    float: left;
-}
-
-.right {
-    float: right;
-}
-
-.clear:before,
-.clear:after
-{
-    content: '';
-    display: table;
-    clear: both;
-}
-
 /* paper style */
 
 html, body {

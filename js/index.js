@@ -78,13 +78,15 @@ document.getElementsByClassName('book-list')[0]
 document.getElementsByClassName('book-list')[0]
     .addEventListener('click', function (e) {
         var target = e.target;
-        if (target && target.nodeName.toLocaleLowerCase() === 'i' && target.className.indexOf('open-book') !== -1) {
+        if (target && target.nodeName.toLocaleLowerCase() === 'button' && target.className.indexOf('open-book') !== -1) {
             var book = target
                 .parentNode
                 .parentNode
                 .parentNode
                 .parentNode;
-            // TODO 处理程序
+            document.cookie = '';
+            document.cookie = 'reading= ' + book.getAttribute('data-key') + ';';
+            location.href = 'reader.html';
         }
     });
 
