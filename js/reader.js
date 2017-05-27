@@ -2,7 +2,7 @@ var book = null;
 
 // 进入页面后的一系列初始化操作
 function init() {
-    var key = document.cookie.split(';')[0].split('=')[1];
+    var key = document.cookie.split(';')[0].split('=')[1]; // 获取存储在 cookie 中的当前阅读书籍的 key
     console.log(key);
 
     bookDB.open(function () {
@@ -16,13 +16,17 @@ function init() {
                 };
                 book = ePub(option);
 
+                // 生成目录
                 book.getToc().then(function (toc) {
-                    var ul = generateToc(toc);
+                    var ul = generateToc(toc, false);
                     document.getElementsByClassName('toc')[0].appendChild(ul);
                 });
 
-                book.setStyle('user-select', 'none');
+                // 设置样式
+                book.setStyle('user-select', 'none'); // 禁用文字选择
+                book.setStyle('background-color', 'transparent'); // 背景透明
 
+                // 渲染
                 book.renderTo(page);
             },
             function () {
@@ -33,13 +37,14 @@ function init() {
 }
 
 // 生成目录
-function generateToc(chapters) {
+function generateToc(chapters, collapse) {
     var ul = document.createElement('ul'),
         li,
         str = '<div class="item-content"><i class="item-mark"></i><a class="chapter-url" href="{url}">{label}</a></div>',
         itemContent;
 
-    ul.className = 'chapter-list';
+    ul.className = collapse ? 'chapter-list collapse' : 'chapter-list expand';
+    ul.style.height = collapse ? '0' : '';
 
     chapters.forEach(function (item) {
         li = document.createElement('li');
@@ -49,15 +54,16 @@ function generateToc(chapters) {
         li.innerHTML = itemContent;
         ul.appendChild(li);
 
+        // 若章节还有子章节，递归生成目录（默认目录折叠）
         if (item.subitems && item.subitems.length) {
-            li.appendChild(generateToc(item.subitems));
+            li.appendChild(generateToc(item.subitems, true));
         }
     });
 
     return ul;
 }
 
-// 目录列表中每个章节的事件处理程序
+// 目录列表中每个章节的事件处理程序（事件委托）
 document.getElementsByClassName('toc')[0]
     .addEventListener('click', function (e) {
         var target = e.target;
@@ -68,6 +74,44 @@ document.getElementsByClassName('toc')[0]
             console.log(href);
         }
     });
+
+// 章节折叠的事件处理程序（事件委托）
+document.getElementsByClassName('toc')[0]
+    .addEventListener('click', function (e) {
+        var target= e.target;
+        if (target && target.className.indexOf('item-mark') !== -1) {
+            var subChapList = target.parentNode.nextElementSibling;
+            if (subChapList && subChapList.className.indexOf('chapter-list') !== -1) {
+                // IE 不支持此方法
+                if (subChapList.classList.contains('collapse')) {
+                    subChapList.classList.remove('collapse');
+                    subChapList.classList.add('expand');
+                    subChapList.style.height = getListHeight(subChapList) + 'px';
+                } else {
+                    subChapList.classList.remove('expand');
+                    subChapList.classList.add('collapse');
+                    subChapList.style.height = '0';
+                }
+                e.preventDefault();
+            }
+        }
+    });
+
+// 计算被隐藏的章节列表本来的高度元素的高度
+function getListHeight(element) {
+    var e,
+        height = 0,
+        i,
+        style;
+    for (i = 0; i < element.childNodes.length; i++) {
+        e = element.childNodes[i];
+        if (e.nodeType === 1) {
+            style = e.currentStyle || document.defaultView.getComputedStyle(e, null); // 使用计算样式获取元素高度
+            height += parseFloat(style.height);
+        }
+    }
+    return height;
+}
 
 // 翻页快捷键的事件处理程序
 EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, renderer) {
@@ -112,6 +156,7 @@ EPUBJS.Hooks.register('beforeChapterDisplay').pageAnimation = function (callback
     }
 };
 
+// 添加此段代码使支持翻页动画
 EPUBJS.Render.Iframe.prototype.setLeft = function(leftPos){
     this.docEl.style[this.transform] = 'translate('+ (-leftPos) + 'px, 0)';
 };

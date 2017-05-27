@@ -15,12 +15,33 @@ main {
 }
 
 /* toc */
-.toc {
+.toc-side {
     background-color: #fff;
     flex-basis: 23%;
     flex-grow: 1;
     overflow: auto;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
+}
+
+.toc-side::-webkit-scrollbar { /* 滚动条 */
+    width: 8px;
+}
+
+.toc-side::-webkit-scrollbar-button { /* 滚动条两端的按钮 */
+    display: none;
+}
+
+.toc-side::-webkit-scrollbar-track { /* 外层轨道 */
+    background-color: #c7c9ca;
+}
+
+.toc-side::-webkit-scrollbar-thumb { /* 滚动块 */
+    background-color: #726E6B;
+    border-radius: 8px;
+}
+
+.toc {
+    height: 100.1%; /* 展示滚动条 */
 }
 
 .toc-head {
@@ -33,6 +54,16 @@ main {
 
 .chapter-list {
     padding-left: 10%;
+    overflow: hidden;
+    transition: .3s;
+}
+
+.chapter-list.collapse {
+    /* 高度由js控制 */
+}
+
+.chapter-list.expand {
+    /* 高度由js控制 */
 }
 
 .chapter-list-item {
@@ -67,6 +98,7 @@ main {
     margin-right: 1em;
     background: #e0e0e0;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
+    flex-shrink: 0; /* 空间不足时不缩小 */
     transition: .3s;
 }
 
@@ -83,26 +115,6 @@ main {
 
 .item-mark:hover {
     border-color: #F5C28A;
-}
-
-.item-mark.checked {
-    border-color: #F5C28A;
-}
-
-.item-mark.checked:before {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-
-    content: '';
-    width: 40%;
-    height: 40%;
-    border-radius: 50%;
-    background-color: #F5C28A;
 }
 
 .chapter-url {

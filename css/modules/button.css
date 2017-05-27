@@ -30,7 +30,7 @@
 }
 
 .btn-prime:hover {
-    box-shadow: 1px 2px 4px 0 rgba(0,0,0,.2);
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, .2);
 }
 
 .btn-tip {
@@ -39,5 +39,5 @@
 }
 
 .btn-tip:hover {
-    background-color: #e0e0e0;
+    background-color: rgba(0, 0, 0, .2);
 }
