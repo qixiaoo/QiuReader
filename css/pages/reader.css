@@ -17,10 +17,15 @@ main {
 /* toc */
 .toc-side {
     background-color: #fff;
-    flex-basis: 23%;
-    flex-grow: 1;
+    width: 23%;
     overflow: auto;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
+    transition: .3s;
+}
+
+.toc-side.off {
+    transform: translateX(-100%);
+    width: 0;
 }
 
 .toc-side::-webkit-scrollbar { /* 滚动条 */
@@ -124,13 +129,58 @@ main {
 /* 右侧 */
 .main {
     flex-grow: 1;
-    flex-basis: 77%;
+    width: 77%;
     display: flex;
+    position: relative;
  }
 
 .page {
-    width: 55%;
-    height: 95%;
+    width: 640px; /* 单页，可调的宽度 */
+    /*width: 80%; !* 双页，可调的宽度 *!*/
+    height: 97%;
     margin: auto;
     align-items: center;
+}
+
+.toc-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+/*默认为关闭的样式*/
+.slidebar {
+    position: relative;
+    display: block;
+    background-color: #828282;
+    height: 15px;
+    width: 40px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.slidebar:after {
+    content: '';
+    position: absolute;
+    display: inline-block;
+    top: 50%;
+    left: -3px;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+    transform: translateY(-50%);
+    transition: .3s;
+}
+
+/*打开的样式*/
+.slidebar.on {
+    background-color: #F5C28A;
+}
+
+.slidebar.on:after {
+    left: 22px;
+    background-color: #F5AD8A;
 }

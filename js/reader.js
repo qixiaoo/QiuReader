@@ -1,4 +1,16 @@
-var book = null;
+var book = null; // 书籍
+
+var tocSide = {
+    isVisible: false
+};
+
+Object.defineProperty(tocSide, 'visible', {
+    set: function (val) {
+        this.isVisible = val;
+        var tocSide = document.getElementsByClassName('toc-side')[0];
+        !val ? tocSide.classList.add('off') : tocSide.classList.remove('off');
+    }
+});
 
 // 进入页面后的一系列初始化操作
 function init() {
@@ -132,6 +144,14 @@ function changeHeight(element, collapse) {
     }
 }
 
+// toc-button 的事件处理程序
+document.getElementsByClassName('toc-button')[0]
+    .addEventListener('click', function (e) {
+        var self = this;
+        self.classList.contains('on') ? this.classList.remove('on') : this.classList.add('on');
+        tocSide.visible = self.classList.contains('on');
+    });
+
 // 翻页快捷键的事件处理程序
 EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, renderer) {
     var lock = false;
@@ -158,7 +178,30 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
         }
 
     };
+    var mouse = function (e) {
+        e.preventDefault();
+        if (lock) return;
+
+        if (e.wheelDelta > 0) {
+            book.prevPage();
+            lock = true;
+            setTimeout(function () {
+                lock = false;
+            }, 100);
+            return false;
+        }
+
+        if (e.wheelDelta < 0) {
+            book.nextPage();
+            lock = true;
+            setTimeout(function () {
+                lock = false;
+            }, 100);
+            return false;
+        }
+    };
     renderer.doc.addEventListener('keydown', arrowKeys, false);
+    renderer.doc.addEventListener('mousewheel', mouse, false);
     if (callback) callback();
 };
 
