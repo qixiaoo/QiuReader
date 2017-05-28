@@ -19,6 +19,7 @@ function init() {
                 // 生成目录
                 book.getToc().then(function (toc) {
                     var ul = generateToc(toc, false);
+                    ul.classList.add('root-list'); // 'root-list' 用于标记根列表
                     document.getElementsByClassName('toc')[0].appendChild(ul);
                 });
 
@@ -86,11 +87,11 @@ document.getElementsByClassName('toc')[0]
                 if (subChapList.classList.contains('collapse')) {
                     subChapList.classList.remove('collapse');
                     subChapList.classList.add('expand');
-                    subChapList.style.height = getListHeight(subChapList) + 'px';
+                    changeHeight(subChapList, false);
                 } else {
                     subChapList.classList.remove('expand');
                     subChapList.classList.add('collapse');
-                    subChapList.style.height = '0';
+                    changeHeight(subChapList, true);
                 }
                 e.preventDefault();
             }
@@ -102,15 +103,33 @@ function getListHeight(element) {
     var e,
         height = 0,
         i,
-        style;
+        dataHeight;
     for (i = 0; i < element.childNodes.length; i++) {
-        e = element.childNodes[i];
+        e = element.childNodes[i]; // e 为 ul 下的 li 元素
         if (e.nodeType === 1) {
-            style = e.currentStyle || document.defaultView.getComputedStyle(e, null); // 使用计算样式获取元素高度
-            height += parseFloat(style.height);
+            dataHeight = e.getAttribute('data-height');
+            height = dataHeight ? (height + parseFloat(dataHeight)) : (height + e.offsetHeight);
         }
     }
     return height;
+}
+
+// 目录列表展开或折叠时改变其高度
+// 第二个参数为true则折叠，false则展开
+function changeHeight(element, collapse) {
+    element.style.height = collapse ? '0' : (getListHeight(element) + 'px');
+
+    // 下面的代码是为了解决由于transition造成的bug
+    var li = element.parentNode,
+        liHeight = li.offsetHeight;
+    liHeight = collapse ? (liHeight - getListHeight(element)) : (liHeight + getListHeight(element));
+    li.setAttribute('data-height', liHeight + ''); // 记录当前包含element的li元素应有的高度，以便element的父ul计算自己的高度
+
+    var parentList = element.parentNode.parentNode;
+    while (parentList.classList.contains('chapter-list') && !parentList.classList.contains('root-list')) {
+        parentList.style.height = getListHeight(parentList) + 'px';
+        parentList = parentList.parentNode.parentNode;
+    }
 }
 
 // 翻页快捷键的事件处理程序
