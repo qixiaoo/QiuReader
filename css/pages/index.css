@@ -28,7 +28,7 @@ main {
     font-size: 1.25rem;
     text-align: center;
     background-color: #fff;
-    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, .12);
+    box-shadow: 0 .5px 1px 0 rgba(0, 0, 0, .12);
 }
 
 .welcome-info > p {
@@ -47,7 +47,7 @@ main {
 
 .book {
     width: 260px;
-    margin: 20px;
+    margin: 40px 20px 20px;
     /*float: left;*/
     border-radius: 5px;
     overflow: hidden;
@@ -175,4 +175,28 @@ nav > ul > li {
 
 .navbar-right input {
     display: none;
+}
+
+.modal {
+    padding: 0;
+    width: 40%;
+}
+
+.modal-header,
+.modal-content,
+.modal-footer
+{
+    padding: 10px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dedede;
+}
+
+.modal-footer {
+    background-color: rgba(28, 186, 163, 0.15);
+}
+
+.modal-footer .btn-tip:hover {
+    background-color: rgba(28, 186, 163, 0.2);
 }

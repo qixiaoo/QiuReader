@@ -1,4 +1,4 @@
-var bookStr = '<div class="book-head {background}"><div class="cover"><div class="cover-border"><div class="book-title">{book-name}</div></div></div><div class="mask-content"><div class="mak-top clear"><i class="icon-delete right" title="删除书籍"></i><i class="icon-edit right" title="编辑书籍信息"></i></div><div class="mask-bottom"><button class="open-book btn-flat">OPEN BOOK</button></div></div><div class="mask"></div></div><div class="book-body"><div class="author-box"><span>作者：</span><span>{author}</span></div></div><div class="book-control"></div>';
+var bookStr = '<div class="book-head {background}"><div class="cover"><div class="cover-border"><div class="book-title">{book-name}</div></div></div><div class="mask-content"><div class="mak-top clear"><i class="icon-delete right" title="删除书籍"></i><i class="icon-edit right modal-trigger" modal-target="edit-book-info" title="编辑书籍信息"></i></div><div class="mask-bottom"><button class="open-book btn-flat">OPEN BOOK</button></div></div><div class="mask"></div></div><div class="book-body"><div class="author-box"><span>作者：</span><span>{author}</span></div></div><div class="book-control"></div>';
 
 // 对应书籍列表页面的欢迎面板
 var welcome = {
@@ -60,17 +60,33 @@ document.getElementById('add-book')
         }
     });
 
-// 编辑书籍信息的事件处理程序（事件委托）
+// 编辑书籍信息按钮的事件处理程序（事件委托）
 document.getElementsByClassName('book-list')[0]
     .addEventListener('click', function (e) {
-        var target = e.target;
+        var target = e.target,
+            book,
+            title = document.getElementById('book-title'), // title 输入框
+            author = document.getElementById('book-author'), // author 输入框
+            saveButton = document.getElementsByClassName('save-book-info')[0];
         if (target && target.nodeName.toLocaleLowerCase() === 'i' && target.className.indexOf('edit') !== -1) {
-            var book = target
+            book = target
                 .parentNode
                 .parentNode
                 .parentNode
                 .parentNode;
-            // TODO 处理程序
+
+            QiuModal.open('edit-book-info');
+            title.value = book.firstElementChild
+                .firstElementChild
+                .firstElementChild
+                .firstElementChild
+                .innerHTML;
+            author.value = book.firstElementChild
+                .nextElementSibling
+                .firstElementChild
+                .lastElementChild
+                .innerHTML;
+            saveButton.setAttribute('data-key', book.getAttribute('data-key'));
         }
     });
 
@@ -119,6 +135,60 @@ document.getElementsByClassName('book-list')[0]
             document.cookie = 'reading= ' + book.getAttribute('data-key') + ';';
             location.href = 'reader.html';
         }
+    });
+
+// 编辑书籍信息模态框的Save按钮的事件处理程序
+document.getElementsByClassName('save-book-info')[0]
+    .addEventListener('click', function (e) {
+        var saveButton = e.target,
+            title = document.getElementById('book-title'), // title 输入框
+            author = document.getElementById('book-author'), // author 输入框
+            bookList = document.getElementsByClassName('book-list')[0],
+            key = saveButton.getAttribute('data-key'),
+            book,
+            i;
+
+        for (i = 0; i < bookList.childNodes.length; i++) {
+            if (bookList.childNodes[i].nodeType === 1 && bookList.childNodes[i].getAttribute('data-key') === key) {
+                book = bookList.childNodes[i];
+                break;
+            }
+        }
+        
+        bookDB.open(function () {
+            bookDB.getBook(
+                key,
+                function (result) { // result 为 indexedDB 中的 Book 对象
+                    result.name = title.value;
+                    result.author = author.value;
+
+                    // 更新书籍信息（这回调好变态啊！）
+                    bookDB.updateBook(
+                        result,
+                        function () {
+                            book.firstElementChild
+                                .firstElementChild
+                                .firstElementChild
+                                .firstElementChild
+                                .innerHTML = title.value;
+                            book.firstElementChild
+                                .nextElementSibling
+                                .firstElementChild
+                                .lastElementChild
+                                .innerHTML = author.value;
+                            console.log('更新书籍信息成功');
+                        },
+                        function () {
+                            alert('Can\'t update book, please try again.');
+                        }
+                    );
+
+                },
+                function () {
+                    alert('保存信息失败，请刷新重试= =');
+                }
+            );
+        });
     });
 
 // welcome 面板隐藏按钮的事件处理程序
@@ -185,10 +255,13 @@ var nextBG = (function () {
 
     return function () {
         number += 1;
-        return number % 5 + 1;
+        number = (number % 5) ? number : 1;
+
+        return number;
     }
 }());
 
 window.onload = function () {
     init();
+    QiuModal.init(); // 初始化模态框
 };
