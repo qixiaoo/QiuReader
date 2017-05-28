@@ -142,12 +142,6 @@ main {
     align-items: center;
 }
 
-.toc-button {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-}
-
 /*默认为关闭的样式*/
 .slidebar {
     position: relative;
@@ -183,4 +177,10 @@ main {
 .slidebar.on:after {
     left: 22px;
     background-color: #F5AD8A;
+}
+
+.toc-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }

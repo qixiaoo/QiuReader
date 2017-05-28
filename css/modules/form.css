@@ -1,0 +1,29 @@
+input[type='text'] {
+    font-size: 1rem;
+    padding: .35em .5em;
+    border: 1px solid #e0e0e0;
+    border-radius: .25em;
+    background-color: #fdfdfd;
+    transition: .3s;
+}
+
+input[type='text']:focus {
+    background-color: #fff;
+    box-shadow: 0 0 8px 0 rgba(28, 186, 163, 0.35);
+}
+
+.input-group {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.input-group > label {
+    display: inline-block;
+    width: 20%;
+    margin-right: 1.5rem;
+    text-align: right;
+}
+
+.input-group > input {
+    width: 50%;
+}
