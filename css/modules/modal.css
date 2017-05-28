@@ -1,0 +1,62 @@
+/*
+ * modal.css 可以在页面上创建一个模态框，需要与 modal.js 一起使用
+ *
+ * 使用说明：
+ * 
+ * 首先需要在 HTML 中引入文件 modal.css 和 modal.js
+ * 然后，使用时需要在 <body> 标签下创建一个 <div class="moadl" id="modalId"></div> 
+ *
+ * 另外，你可以为一个元素加上 .modal-trigger 类，就可以把这个元素作为打开模态框的触发器
+ * 同理，加上 .modal-close 类的元素可以在被点击后关闭模态框
+ * 注意：你还要为上面的元素加上 modal-target 属性，属性值为要打开/关闭的模态框的id
+ */
+
+.modal {
+    position: fixed;
+    top: 20%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 20px;
+    max-width: 50vw;
+    max-height: 70vh;
+    border-radius: 5px;
+    background-color: white;
+    overflow-y: auto;
+    box-shadow: 0 2px 2px 1px #666;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 999;
+    transform: scale(0.7, 0.7);
+    transition-property: all;
+    transition-duration: .5s;
+}
+
+.modal-header {
+    font-size: 21px;
+    text-align: center;
+    margin: 0 auto 15px;
+}
+
+.modal-content {
+    margin: auto;
+}
+
+.modal-footer {
+    text-align: center;
+    margin: 15px auto 0;
+}
+
+.modal-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 998;
+    transition-property: all;
+    transition-duration: .5s;
+}
