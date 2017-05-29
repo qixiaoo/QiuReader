@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Qiu</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/base/reset.css">
     <link rel="stylesheet" href="css/modules/common.css">
     <link rel="stylesheet" href="css/modules/button.css">
@@ -28,11 +29,39 @@
     </div>
 </main>
 
+<div class="tool-bar disable-select" id="tool-bar">
+    <button class="tool-bar-btn drag-me" id="drag-me">
+        <i class="material-icons">drag_handle</i>
+    </button>
+    <button class="tool-bar-btn" id="full-screen">
+        <i class="material-icons">fullscreen</i>
+    </button>
+    <button class="tool-bar-btn" id="normal-screen">
+        <i class="material-icons">fullscreen_exit</i>
+    </button>
+    <button class="tool-bar-btn" id="setting">
+        <i class="material-icons">settings</i>
+    </button>
+    <button class="tool-bar-btn" id="book-mark">
+        <i class="material-icons">bookmark</i>
+    </button>
+    <button class="tool-bar-btn" id="color">
+        <i class="material-icons">color_lens</i>
+    </button>
+    <!--<button class="tool-bar-btn" id="font">-->
+        <!--<i class="material-icons">font_download</i>-->
+    <!--</button>-->
+    <button class="tool-bar-btn" id="exit">
+        <i class="material-icons">exit_to_app</i>
+    </button>
+</div>
+
 <footer></footer>
 
 <script type="text/javascript" src="js/lib/zip.min.js"></script>
 <script type="text/javascript" src="js/lib/epub.js"></script>
 <script type="text/javascript" src="js/bookDB.js"></script>
+<script type="text/javascript" src="js/drag.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>
 </body>
 </html>

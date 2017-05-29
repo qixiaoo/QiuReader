@@ -5,11 +5,14 @@
 }
 
 html, body {
+    position: relative;
     height: 100%;
     background-color: #F2F4F5;
+    overflow: hidden;
 }
 
 main {
+    position: relative;
     height: 100vh;
     display: flex;
 }
@@ -142,7 +145,8 @@ main {
     align-items: center;
 }
 
-/*默认为关闭的样式*/
+/*slidebar 默认为关闭的样式*/
+
 .slidebar {
     position: relative;
     display: block;
@@ -169,7 +173,6 @@ main {
     transition: .3s;
 }
 
-/*打开的样式*/
 .slidebar.on {
     background-color: #F5C28A;
 }
@@ -183,4 +186,38 @@ main {
     position: absolute;
     top: 10px;
     left: 10px;
+}
+
+/* tool-bar */
+.tool-bar {
+    position: absolute;
+    right: 0; /* todo 位置应与样式分离 */
+    bottom: 40px;
+    width: 300px; /* todo 未指定width的bug*/
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 4px;
+    cursor: url("../../img/cursor-move.png"), auto;
+    font-size: 0; /* hack: 去除inline-block间的空格 */
+    background: #ECE9E6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #FFFFFF, #ECE9E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to bottom, #FFFFFF, #ECE9E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    box-shadow: 0 3px 15px 1px rgba(0, 0, 0, .2);
+    transition: opacity .5s, transform .5s;
+}
+
+.drag-me {
+    cursor: url("../../img/cursor-move.png"), auto;
+}
+
+.tool-bar-btn {
+    display: inline-block;
+    height: inherit;
+    width: 40px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.tool-bar-btn:not(.drag-me):hover {
+    background-color: rgba(0, 0, 0, .15);
 }

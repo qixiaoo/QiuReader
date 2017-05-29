@@ -91,7 +91,7 @@ document.getElementsByClassName('toc')[0]
 // 章节折叠的事件处理程序（事件委托）
 document.getElementsByClassName('toc')[0]
     .addEventListener('click', function (e) {
-        var target= e.target;
+        var target = e.target;
         if (target && target.className.indexOf('item-mark') !== -1) {
             var subChapList = target.parentNode.nextElementSibling;
             if (subChapList && subChapList.className.indexOf('chapter-list') !== -1) {
@@ -219,10 +219,123 @@ EPUBJS.Hooks.register('beforeChapterDisplay').pageAnimation = function (callback
 };
 
 // 添加此段代码使支持翻页动画
-EPUBJS.Render.Iframe.prototype.setLeft = function(leftPos){
-    this.docEl.style[this.transform] = 'translate('+ (-leftPos) + 'px, 0)';
+EPUBJS.Render.Iframe.prototype.setLeft = function (leftPos) {
+    this.docEl.style[this.transform] = 'translate(' + (-leftPos) + 'px, 0)';
 };
+
+/* tool-bar 的事件处理程序 */
+
+// 鼠标移入 tool-bar 则显示
+document.getElementById('tool-bar')
+    .addEventListener('mouseover', function (e) {
+            var bar = document.getElementById('tool-bar'),
+                left = parseFloat(document.defaultView.getComputedStyle(bar, null).left),
+                maxLeft = window.innerWidth - parseFloat(document.defaultView.getComputedStyle(bar, null).width);
+
+            //console.log(e.target.nodeName.toLocaleLowerCase() + "触发了mouseover");
+
+            if (bar.getAttribute('data-hide') === 'true') {
+                bar.style.opacity = '1';
+                bar.style.transform = '';
+                bar.setAttribute('data-hide', 'false');
+            }
+        }
+    );
+
+// 鼠标移出 tool-bar 则隐藏
+document.getElementById('tool-bar')
+    .addEventListener('mouseout', function (e) {
+        var bar = document.getElementById('tool-bar'),
+            left = parseFloat(document.defaultView.getComputedStyle(bar, null).left),
+            maxLeft = window.innerWidth - parseFloat(document.defaultView.getComputedStyle(bar, null).width);
+
+        //console.log(e.target.nodeName.toLocaleLowerCase() + "触发了mouseout");
+
+        // 只处理 .tool-bar 触发的 mouseout 事件
+        if (bar.getAttribute('data-hide') !== 'true') {
+            if (left >= maxLeft) {
+                setTimeout(function () {
+                    if (bar.getAttribute('data-hide') === 'true') {
+                        left = parseFloat(document.defaultView.getComputedStyle(bar, null).left);
+                        if (left >= maxLeft) // 解决拖太快的bug（鼠标移出两秒后，若元素仍然在需要用transform隐藏的范围内，则使用transform隐藏）
+                            bar.style.transform = 'translateX(250px)'; // todo 自动计算宽度
+                        bar.style.opacity = '.2';
+                    }
+                }, 2000); // 鼠标移出两秒后，若tool-bar的data-hide属性仍然为true，则隐藏
+            } else {
+                setTimeout(function () {
+                    if (bar.getAttribute('data-hide') === 'true')
+                        bar.style.opacity = '.2';
+                }, 2000);
+            }
+            bar.setAttribute('data-hide', 'true');
+        }
+    });
+
+// tool-bar 退出按钮的事件处理程序
+document.getElementById('exit')
+    .addEventListener('click', function (e) {
+        window.location = 'index.html';
+    });
+
+// tool-bar 书签按钮的事件处理程序
+document.getElementById('book-mark')
+    .addEventListener('click', function (e) {
+        // todo
+    });
+
+// tool-bar 调色按钮的事件处理程序
+document.getElementById('color')
+    .addEventListener('click', function (e) {
+        // todo
+    });
+
+// tool-bar 设置按钮的事件处理程序
+document.getElementById('setting')
+    .addEventListener('click', function (e) {
+        // todo
+    });
+
+// tool-bar 全屏按钮的事件处理程序
+document.getElementById('full-screen')
+    .addEventListener('click', function (e) {
+        var de = document.documentElement;
+
+        if (de.requestFullscreen) {
+            de.requestFullscreen();
+        } else if (de.mozRequestFullScreen) {
+            de.mozRequestFullScreen();
+        } else if (de.msRequestFullscreen) {
+            de.msRequestFullscreen();
+        } else if (de.webkitRequestFullscreen) {
+            de.webkitRequestFullScreen();
+        }
+    });
+
+// tool-bar 恢复屏幕大小按钮的事件处理程序
+document.getElementById('normal-screen')
+    .addEventListener('click', function (e) {
+
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+
+        // todo 恢复进度
+    });
 
 window.onload = function () {
     init();
+
+    new QiuDrag('tool-bar');
+
+    // 触发 tool-bar 隐藏效果
+    var evt = document.createEvent('MouseEvents');
+    evt.initEvent('mouseout', true, true);
+    document.getElementById('tool-bar').dispatchEvent(evt);
 };
