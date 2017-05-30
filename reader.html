@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/modules/button.css">
     <link rel="stylesheet" href="css/modules/color.css">
     <link rel="stylesheet" href="css/modules/icon.css">
+    <link rel="stylesheet" href="css/modules/modal.css">
     <link rel="stylesheet" href="css/pages/reader.css">
 </head>
 <body>
@@ -29,6 +30,9 @@
     </div>
 </main>
 
+<footer></footer>
+
+<!--工具栏-->
 <div class="tool-bar disable-select" id="tool-bar">
     <button class="tool-bar-btn drag-me" id="drag-me">
         <i class="material-icons">drag_handle</i>
@@ -39,29 +43,77 @@
     <button class="tool-bar-btn" id="normal-screen">
         <i class="material-icons">fullscreen_exit</i>
     </button>
-    <button class="tool-bar-btn" id="setting">
+    <button class="tool-bar-btn modal-trigger" id="setting" modal-target="setting-panel">
         <i class="material-icons">settings</i>
     </button>
-    <button class="tool-bar-btn" id="book-mark">
+    <button class="tool-bar-btn" id="book-mark" title="鼠标左键：添加书签/鼠标右键：书签列表">
         <i class="material-icons">bookmark</i>
     </button>
-    <button class="tool-bar-btn" id="color">
+    <button class="tool-bar-btn modal-trigger" id="color" modal-target="color-panel">
         <i class="material-icons">color_lens</i>
     </button>
     <!--<button class="tool-bar-btn" id="font">-->
-        <!--<i class="material-icons">font_download</i>-->
+    <!--<i class="material-icons">font_download</i>-->
+    <!--</button>-->
+    <!--<button class="tool-bar-btn" id="search">-->
+    <!--<i class="material-icons">search</i>-->
     <!--</button>-->
     <button class="tool-bar-btn" id="exit">
         <i class="material-icons">exit_to_app</i>
     </button>
 </div>
 
-<footer></footer>
+<!--设置panel-->
+<div class="modal" id="setting-panel">
+    <div class="modal-header"></div>
+    <div class="modal-content">
+        <!--字体：字体族、颜色、大小-->
+        <!--theme：普通、夜间-->
+        <!--阅读模式：单页阅读、双页阅读、文档阅读-->
+        <!--tab?-->
+    </div>
+    <div class="modal-footer">
+        <button class="btn-tip modal-close" modal-target="setting-panel">Save</button>
+        <button class="btn-tip modal-close" modal-target="setting-panel">Cancel</button>
+    </div>
+</div>
+
+<!--book-mark-panel-->
+<div class="book-mark-panel hide" id="book-mark-panel">
+    <div class="book-mark-head clear">
+        书签
+        <i class="material-icons book-mark-panel-close right">close</i>
+    </div>
+    <ul class="book-mark-content">
+    </ul>
+</div>
+
+<!--todo book-mark-edit-panel-->
+
+<!--color-panel-->
+<div class="modal" id="color-panel">
+    <div class="modal-header"></div>
+    <div class="modal-content">
+        <ul class="color-list">
+            <li class="color-item"></li>
+            <li class="color-item"></li>
+            <li class="color-item"></li>
+            <li class="color-item"></li>
+            <li class="color-item"></li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn-tip modal-close color-save" modal-target="color-panel">Save</button>
+        <button class="btn-tip modal-close" modal-target="color-panel">Cancel</button>
+    </div>
+</div>
 
 <script type="text/javascript" src="js/lib/zip.min.js"></script>
 <script type="text/javascript" src="js/lib/epub.js"></script>
 <script type="text/javascript" src="js/bookDB.js"></script>
 <script type="text/javascript" src="js/drag.js"></script>
+<script type="text/javascript" src="js/modal.js"></script>
+<script type="text/javascript" src="js/bookMark.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>
 </body>
 </html>

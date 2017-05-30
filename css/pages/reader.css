@@ -9,6 +9,7 @@ html, body {
     height: 100%;
     background-color: #F2F4F5;
     overflow: hidden;
+    transition: background-color .5s;
 }
 
 main {
@@ -220,4 +221,103 @@ main {
 
 .tool-bar-btn:not(.drag-me):hover {
     background-color: rgba(0, 0, 0, .15);
+}
+
+/* color-panel */
+.color-list {
+    display: flex;
+    justify-content: center;
+}
+
+.color-item {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.color-item.selected {
+    border-color: #f5c18a;
+}
+
+.color-item:hover {
+    border-color: #f5c18a;
+}
+
+.color-item:nth-child(1) {
+    background-color: #f6ebd0;
+}
+
+.color-item:nth-child(2) {
+    background-color: #e7e7e7;
+}
+
+.color-item:nth-child(3) {
+    background-color: #f1f3f4;
+}
+
+.color-item:nth-child(4) {
+    background-color: #f7f6f2;
+}
+
+.color-item:nth-child(5) {
+    background-color: #fff;
+}
+
+/* 书签栏 */
+.book-mark-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 300px;
+    background-color: #fff;
+    box-shadow: 2px 0 3px 0 rgba(0,0,0,.15);
+    z-index: 999;
+    transition: transform .3s;
+}
+
+.book-mark-panel.hide {
+    transform: translateX(-100%);
+}
+
+.book-mark-head {
+    text-align: center;
+    margin: 20px auto;
+    font-size: 18px;
+}
+
+.book-mark-item {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #dddddd;
+    padding: 0 10px;
+}
+
+.book-mark-cfi {
+    height: inherit;
+    width: 210px;
+    cursor: pointer;
+    word-wrap:break-word;
+}
+
+.book-mark-control {
+    height: inherit;
+    width: 64px;
+    cursor: pointer;
+}
+
+.book-mark-panel i {
+    padding-left: 5px;
+    cursor: pointer;
+    transition: color .3s;
+}
+
+.book-mark-panel i:hover {
+    color: #f5c18a;
+}
+
+.book-mark-panel-close {
+    position: absolute;
+    right: 20px;
 }

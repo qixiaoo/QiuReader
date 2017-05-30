@@ -12,9 +12,43 @@ Object.defineProperty(tocSide, 'visible', {
     }
 });
 
+// 记录当前阅读书籍的当前阅读到的位置
+var currentLocation = {
+
+    recordCurrentCfi: function () {
+        var bookKey = localStorage.getItem('reading');
+        var current = book.getCurrentLocationCfi();
+        localStorage.setItem('currentLocationCfi'+bookKey, current);
+    },
+
+    getCurrentCfi: function () {
+        var bookKey = localStorage.getItem('reading');
+
+        for(var i = 0; i < localStorage.length; i++){
+            if (localStorage.key(i) === ('currentLocationCfi'+bookKey)) {
+                return localStorage.getItem(localStorage.key(i));
+            }
+        }
+
+        return '';
+    },
+
+    // 清除特定书籍的进度信息
+    clear: function (bookKey) {
+        var i;
+
+        for (i = 0; i < localStorage.length; i++) {
+            if (localStorage.getItem(localStorage.key(i)).indexOf(bookKey)) {
+                localStorage.removeItem(localStorage.key(i));
+                break;
+            }
+        }
+    }
+};
+
 // 进入页面后的一系列初始化操作
 function init() {
-    var key = document.cookie.split(';')[0].split('=')[1]; // 获取存储在 cookie 中的当前阅读书籍的 key
+    var key = localStorage.getItem('reading');  // 获取存储在 localStorage 中的当前阅读书籍的 key
     console.log(key);
 
     bookDB.open(function () {
@@ -39,8 +73,15 @@ function init() {
                 book.setStyle('user-select', 'none'); // 禁用文字选择
                 book.setStyle('background-color', 'transparent'); // 背景透明
 
+                // 设置背景色
+                document.getElementsByTagName('body')[0].style.backgroundColor = localStorage.getItem('bg-color') ? localStorage.getItem('bg-color') : '';
+
                 // 渲染
                 book.renderTo(page);
+
+                // 跳转到上一次阅读点
+                if (currentLocation.getCurrentCfi())
+                    book.gotoCfi(currentLocation.getCurrentCfi());
             },
             function () {
                 alert('获取书籍信息失败，请返回首页重试！');
@@ -82,9 +123,11 @@ document.getElementsByClassName('toc')[0]
         var target = e.target;
         if (target && target.nodeName.toLocaleLowerCase() === 'a' && target.className.indexOf('chapter-url') !== -1) {
             var href = target.getAttribute('href');
-            book.goto(href);
+            book.goto(href).then(function () {
+                currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+            });
             e.preventDefault();
-            console.log(href);
+            console.log(href + " " + currentLocation.getCurrentCfi());
         }
     });
 
@@ -161,6 +204,7 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.keyCode == 37 || e.keyCode == 38) {
             book.prevPage();
+            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -170,6 +214,7 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.keyCode == 39 || e.keyCode == 40) {
             book.nextPage();
+            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -184,6 +229,7 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.wheelDelta > 0) {
             book.prevPage();
+            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -193,6 +239,7 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.wheelDelta < 0) {
             book.nextPage();
+            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -281,13 +328,46 @@ document.getElementById('exit')
 // tool-bar 书签按钮的事件处理程序
 document.getElementById('book-mark')
     .addEventListener('click', function (e) {
-        // todo
+        bookMark.addBookMark(); // 添加书签
+
     });
 
-// tool-bar 调色按钮的事件处理程序
-document.getElementById('color')
+// tool-bar 书签按钮的事件处理程序——展开书签列表
+document.getElementById('book-mark')
+    .addEventListener('contextmenu', function (e) {
+
+        showBookMarks();
+
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+// tool-bar 调色板（模态框）的事件处理程序
+document.getElementById('color-panel')
     .addEventListener('click', function (e) {
-        // todo
+        var target = e.target,
+            lis,
+            ul,
+            color,
+            i;
+
+        if (target.classList.contains('color-item')) {
+            lis = target.parentNode.childNodes;
+            for (i = 0; i < lis.length; i++)
+                lis[i].nodeType === 1 ? lis[i].classList.remove('selected') : '';
+            target.classList.add('selected');
+        }
+
+        if (target.classList.contains('color-save')) {
+            ul = document.getElementsByClassName('color-list')[0];
+            for (i = 0; i < ul.childNodes.length; i++)
+                if (ul.childNodes[i].nodeType === 1 && ul.childNodes[i].classList.contains('selected')) {
+                    color = document.defaultView.getComputedStyle(ul.childNodes[i], null).backgroundColor;
+                    document.getElementsByTagName('body')[0].style.backgroundColor = color;
+                    ul.childNodes[i].classList.remove('selected');
+                    localStorage.setItem('bg-color', color);
+                }
+        }
     });
 
 // tool-bar 设置按钮的事件处理程序
@@ -310,6 +390,8 @@ document.getElementById('full-screen')
         } else if (de.webkitRequestFullscreen) {
             de.webkitRequestFullScreen();
         }
+
+        // todo 恢复进度
     });
 
 // tool-bar 恢复屏幕大小按钮的事件处理程序
@@ -329,6 +411,59 @@ document.getElementById('normal-screen')
         // todo 恢复进度
     });
 
+// 展示书签面板
+function showBookMarks() {
+    var panel = document.getElementById('book-mark-panel');
+    var ul = document.getElementsByClassName('book-mark-content')[0];
+    var marList = bookMark.getBookMarks();
+    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons" title="edit">assignment</i></div></li>';
+    var resultStr = '';
+
+    marList.forEach(function (e) {
+        resultStr += itemStr.replace('{cfi}', e.cfi).replace('{name}', e.name);
+    });
+
+    ul.innerHTML = resultStr;
+
+    panel.classList.remove('hide');
+}
+
+// 书签面板的事件处理程序
+document.getElementById('book-mark-panel')
+    .addEventListener('click', function (e) {
+        var panel = document.getElementById('book-mark-panel'),
+            target = e.target,
+            ul = document.getElementsByClassName('book-mark-content')[0],
+            li,
+            cfi;
+
+        // 关闭面板
+        if (target.className && target.className.indexOf('book-mark-panel-close') !== -1)
+            panel.classList.add('hide');
+
+        // 删除书签
+        if (target.className && target.className.indexOf('book-mark-panel-delete') !== -1) {
+            li = target.parentNode.parentNode;
+            bookMark.removeBookMark(li.getAttribute('data-cfi'));
+            ul.removeChild(li);
+        }
+
+        // todo 编辑书签内容
+
+        // 跳转
+        if (target.nodeName.toLocaleLowerCase() === 'a') {
+            cfi = target.parentNode.parentNode.getAttribute('data-cfi');
+            book.gotoCfi(cfi).then(function () {
+                currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+            });
+        }
+    });
+
+// 关闭面板
+function closeBookMarkPanel() {
+
+}
+
 window.onload = function () {
     init();
 
@@ -338,4 +473,7 @@ window.onload = function () {
     var evt = document.createEvent('MouseEvents');
     evt.initEvent('mouseout', true, true);
     document.getElementById('tool-bar').dispatchEvent(evt);
+
+    // 初始化模态框
+    QiuModal.init();
 };

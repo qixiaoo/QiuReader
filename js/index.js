@@ -111,6 +111,8 @@ document.getElementsByClassName('book-list')[0]
                             self.removeChild(book);
                             // 检查是否书籍列表是否为空，判断是否展示 welcome 面板
                             welcome.visible = document.getElementsByClassName('book').length === 0;
+
+                            // todo 删除本地存储的阅读信息（进度、书签等）
                         },
                         function () {
                             alert('删除书籍失败，请刷新重试');
@@ -131,8 +133,7 @@ document.getElementsByClassName('book-list')[0]
                 .parentNode
                 .parentNode
                 .parentNode;
-            document.cookie = '';
-            document.cookie = 'reading= ' + book.getAttribute('data-key') + ';';
+            localStorage.setItem('reading', book.getAttribute('data-key')); // 更改阅读信息的存储位置
             location.href = 'reader.html';
         }
     });
