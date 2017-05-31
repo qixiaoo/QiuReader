@@ -12,40 +12,6 @@ Object.defineProperty(tocSide, 'visible', {
     }
 });
 
-// 记录当前阅读书籍的当前阅读到的位置
-var currentLocation = {
-
-    recordCurrentCfi: function () {
-        var bookKey = localStorage.getItem('reading');
-        var current = book.getCurrentLocationCfi();
-        localStorage.setItem('currentLocationCfi'+bookKey, current);
-    },
-
-    getCurrentCfi: function () {
-        var bookKey = localStorage.getItem('reading');
-
-        for(var i = 0; i < localStorage.length; i++){
-            if (localStorage.key(i) === ('currentLocationCfi'+bookKey)) {
-                return localStorage.getItem(localStorage.key(i));
-            }
-        }
-
-        return '';
-    },
-
-    // 清除特定书籍的进度信息
-    clear: function (bookKey) {
-        var i;
-
-        for (i = 0; i < localStorage.length; i++) {
-            if (localStorage.getItem(localStorage.key(i)).indexOf(bookKey)) {
-                localStorage.removeItem(localStorage.key(i));
-                break;
-            }
-        }
-    }
-};
-
 // 进入页面后的一系列初始化操作
 function init() {
     var key = localStorage.getItem('reading');  // 获取存储在 localStorage 中的当前阅读书籍的 key
@@ -329,14 +295,15 @@ document.getElementById('exit')
 document.getElementById('book-mark')
     .addEventListener('click', function (e) {
         bookMark.addBookMark(); // 添加书签
-
+        refreshMarkPanel();
     });
 
 // tool-bar 书签按钮的事件处理程序——展开书签列表
 document.getElementById('book-mark')
     .addEventListener('contextmenu', function (e) {
 
-        showBookMarks();
+        var panel = document.getElementById('book-mark-panel');
+        panel.classList.remove('hide');
 
         e.preventDefault();
         e.stopPropagation();
@@ -412,11 +379,10 @@ document.getElementById('normal-screen')
     });
 
 // 展示书签面板
-function showBookMarks() {
-    var panel = document.getElementById('book-mark-panel');
+function refreshMarkPanel() {
     var ul = document.getElementsByClassName('book-mark-content')[0];
     var marList = bookMark.getBookMarks();
-    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons" title="edit">assignment</i></div></li>';
+    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons book-mark-panel-edit" title="edit">assignment</i></div></li>';
     var resultStr = '';
 
     marList.forEach(function (e) {
@@ -424,14 +390,13 @@ function showBookMarks() {
     });
 
     ul.innerHTML = resultStr;
-
-    panel.classList.remove('hide');
 }
 
 // 书签面板的事件处理程序
 document.getElementById('book-mark-panel')
     .addEventListener('click', function (e) {
         var panel = document.getElementById('book-mark-panel'),
+            modal = document.getElementById('book-mark-modal'),
             target = e.target,
             ul = document.getElementsByClassName('book-mark-content')[0],
             li,
@@ -448,7 +413,14 @@ document.getElementById('book-mark-panel')
             ul.removeChild(li);
         }
 
-        // todo 编辑书签内容
+        // 编辑书签内容
+        if (target.className && target.className.indexOf('book-mark-panel-edit') !== -1) {
+            li = target.parentNode.parentNode;
+            cfi = li.getAttribute('data-cfi');
+            modal.setAttribute('data-cfi', cfi);
+            document.getElementById('book-mark-name').value = '';
+            QiuModal.open('book-mark-modal'); // 打开编辑模态框
+        }
 
         // 跳转
         if (target.nodeName.toLocaleLowerCase() === 'a') {
@@ -457,12 +429,38 @@ document.getElementById('book-mark-panel')
                 currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
             });
         }
+
+        e.preventDefault();
     });
 
-// 关闭面板
-function closeBookMarkPanel() {
+// 书签模态框save按钮的事件处理程序
+document.getElementById('book-mark-modal')
+    .addEventListener('click', function (e) {
+        var modal = this,
+            target = e.target,
+            lis = document.getElementsByClassName('book-mark-item'),
+            cfi,
+            markName,
+            i,
+            j;
 
-}
+        if (target.className && target.className.indexOf('book-mark-save') !== -1) {
+            cfi = modal.getAttribute('data-cfi');
+            markName = document.getElementById('book-mark-name').value;
+            bookMark.modifyBookMark(cfi, markName);
+
+            for (i = 0; i < lis.length; i++) {
+                if (lis[i].getAttribute('data-cfi') === cfi) {
+                    for (j = 0; j < lis[i].childNodes.length; j++) {
+                        if (lis[i].childNodes[j].nodeType === 1 && lis[i].childNodes[j].className.indexOf('book-mark-cfi') !== -1) {
+                            lis[i].childNodes[j].firstElementChild.innerHTML = markName;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    });
 
 window.onload = function () {
     init();
@@ -476,4 +474,6 @@ window.onload = function () {
 
     // 初始化模态框
     QiuModal.init();
+
+    refreshMarkPanel();  // 初始化书签面板
 };

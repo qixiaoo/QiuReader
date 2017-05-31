@@ -112,7 +112,9 @@ document.getElementsByClassName('book-list')[0]
                             // 检查是否书籍列表是否为空，判断是否展示 welcome 面板
                             welcome.visible = document.getElementsByClassName('book').length === 0;
 
-                            // todo 删除本地存储的阅读信息（进度、书签等）
+                            // 删除本地存储的阅读信息（进度、书签等）
+                            bookMark.removeBookMarks(key); // 删除书签记录
+                            currentLocation.clear(key); // 删除阅读进度信息
                         },
                         function () {
                             alert('删除书籍失败，请刷新重试');

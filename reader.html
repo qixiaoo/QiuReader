@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/modules/color.css">
     <link rel="stylesheet" href="css/modules/icon.css">
     <link rel="stylesheet" href="css/modules/modal.css">
+    <link rel="stylesheet" href="css/modules/form.css">
     <link rel="stylesheet" href="css/pages/reader.css">
 </head>
 <body>
@@ -88,7 +89,22 @@
     </ul>
 </div>
 
-<!--todo book-mark-edit-panel-->
+<!--book-mark-modal-->
+<div class="modal" id="book-mark-modal">
+    <div class="modal-header">Book Mark</div>
+    <div class="modal-content">
+        <div>
+            <div class="input-group">
+                <label for="book-mark-name">Mark</label>
+                <input type="text" id="book-mark-name">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn-tip modal-close book-mark-save" modal-target="book-mark-modal">Save</button>
+        <button class="btn-tip modal-close" modal-target="book-mark-modal">Cancel</button>
+    </div>
+</div>
 
 <!--color-panel-->
 <div class="modal" id="color-panel">
@@ -113,6 +129,7 @@
 <script type="text/javascript" src="js/bookDB.js"></script>
 <script type="text/javascript" src="js/drag.js"></script>
 <script type="text/javascript" src="js/modal.js"></script>
+<script type="text/javascript" src="js/currentLocation.js"></script>
 <script type="text/javascript" src="js/bookMark.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>
 </body>

@@ -96,6 +96,8 @@
         marks[key].forEach(function (e, i, arr) {
             arr[i].name = e.cfi === cfi ? name : arr[i].name;
         });
+
+        localStorage.setItem('book-marks', JSON.stringify(marks));
     };
 
     win.bookMark = bookMark;
