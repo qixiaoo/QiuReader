@@ -1,6 +1,7 @@
 // 记录书籍的阅读进度信息
 var currentLocation = {
 
+    // todo vertical 模式记录位置
     recordCurrentCfi: function () {
         var bookKey = localStorage.getItem('reading');
         var current = book.getCurrentLocationCfi();

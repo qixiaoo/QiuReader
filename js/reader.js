@@ -8,7 +8,9 @@ Object.defineProperty(tocSide, 'visible', {
     set: function (val) {
         this.isVisible = val;
         var tocSide = document.getElementsByClassName('toc-side')[0];
+        var tocBtn = document.getElementsByClassName('toc-button')[0];
         !val ? tocSide.classList.add('off') : tocSide.classList.remove('off');
+        !val ? tocBtn.classList.remove('on') : tocBtn.classList.add('on');
     }
 });
 
@@ -48,6 +50,14 @@ function init() {
                 // 跳转到上一次阅读点
                 if (currentLocation.getCurrentCfi())
                     book.gotoCfi(currentLocation.getCurrentCfi());
+
+                // 用户自定义设置
+                book.on('renderer:chapterDisplayed', function(){
+                    QiuSettings.init();
+                    tocSide.visible = QiuSettings.sideToc;
+                    QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                    setFontSize(QiuSettings.fontSize);
+                });
             },
             function () {
                 alert('获取书籍信息失败，请返回首页重试！');
@@ -94,6 +104,7 @@ document.getElementsByClassName('toc')[0]
             });
             e.preventDefault();
             console.log(href + " " + currentLocation.getCurrentCfi());
+            setVerticalMode();
         }
     });
 
@@ -159,6 +170,7 @@ document.getElementsByClassName('toc-button')[0]
         var self = this;
         self.classList.contains('on') ? this.classList.remove('on') : this.classList.add('on');
         tocSide.visible = self.classList.contains('on');
+        QiuSettings.setSideToc(tocSide.isVisible);
     });
 
 // 翻页快捷键的事件处理程序
@@ -468,41 +480,80 @@ document.getElementById('book-mark-modal')
 
 // 水平翻页
 document.getElementById('horizontal')
-    .addEventListener('click', function (e) {
-        var pageSingle = document.getElementsByClassName('page')[0],
-            pageFull = document.getElementsByClassName('page')[1];
-
-        pageSingle.classList.remove('hide');
-        pageFull.classList.add('hide');
-    });
+    .addEventListener('click', setHorizontalMode);
 
 // 垂直滚动翻页
 document.getElementById('vertical')
-    .addEventListener('click', function (e) {
-        var pageSingle = document.getElementsByClassName('page')[0],
-            pageFull = document.getElementsByClassName('page')[1],
-            iframe = document.createElement('iframe'),
-            link = document.createElement('link');
+    .addEventListener('click', setVerticalMode);
 
-        pageFull.innerHTML = ''; // todo 根据setting判断页面是否变化
+function setHorizontalMode() {
+    var pageSingle = document.getElementsByClassName('page')[0],
+        pageFull = document.getElementsByClassName('page')[1];
 
-        iframe.width = '100%';
-        iframe.height = '100%';
-        pageFull.appendChild(iframe);
-        iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
-        link.rel = 'stylesheet';
-        link.href = '/QiuReader/css/epub/common.css';
-        iframe.contentDocument.head.appendChild(link);
+    pageSingle.classList.remove('hide');
+    pageFull.classList.add('hide');
 
-        pageFull.classList.remove('hide');
-        pageSingle.classList.add('hide');
-    });
+    QiuSettings.setPageMode(true);
+}
+
+function setVerticalMode() {
+    var pageSingle = document.getElementsByClassName('page')[0],
+        pageFull = document.getElementsByClassName('page')[1],
+        iframe = document.createElement('iframe'),
+        link = document.createElement('link');
+
+    pageFull.innerHTML = '';
+
+    iframe.width = '100%';
+    iframe.height = '100%';
+    pageFull.appendChild(iframe);
+    iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
+    link.rel = 'stylesheet';
+    link.href = '/QiuReader/css/epub/common.css';
+    iframe.contentDocument.head.appendChild(link);
+
+    pageFull.classList.remove('hide');
+    pageSingle.classList.add('hide');
+
+    QiuSettings.setPageMode(false);
+}
 
 // 字体调节
 document.getElementsByClassName('font-size-control')[0]
     .addEventListener('click', function (e) {
-        var target = e.target;
+        var target = e.target,
+            size = parseInt(QiuSettings.fontSize),
+            reduceIcon = document.getElementsByClassName('font-size-reduce')[0].firstElementChild,
+            addIcon = document.getElementsByClassName('font-size-add')[0].firstElementChild;
+
+        // 避免点击在icon上不能改变大小
+        if ((target.classList && target.classList.contains('font-size-reduce')) || target === reduceIcon) {
+            size -= 10;
+            size += '%';
+            setFontSize(size);
+            QiuSettings.setFontSize(size);
+        }
+
+        if ((target.classList && target.classList.contains('font-size-add')) || target === addIcon) {
+            size += 10;
+            size += '%';
+            setFontSize(size);
+            QiuSettings.setFontSize(size);
+        }
     });
+
+function setFontSize(size) {
+    var iframe,
+        tip = document.getElementsByClassName('font-size')[0];
+
+    if (QiuSettings.pageMode)
+        iframe = document.getElementsByClassName('page')[0].firstElementChild.firstElementChild;
+    else
+        iframe = document.getElementsByClassName('page')[1].firstElementChild;
+
+    iframe.contentDocument.getElementsByTagName('body')[0].style.fontSize = size;
+    tip.innerHTML = size;
+}
 
 window.onload = function () {
     init();
