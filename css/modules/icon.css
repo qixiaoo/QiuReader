@@ -2,8 +2,7 @@
 
 [class*='icon-'] {
     display: inline-block;
-    background-repeat: no-repeat;
-    background-position: center;
+    background: center no-repeat;
     min-width: 16px;
     min-height: 16px;
     margin-right: 5px;
@@ -23,4 +22,12 @@
 
 .icon-edit:hover {
     background-image: url(../../img/edit-d.png);
+}
+
+.icon-horizontal-page {
+    background-image: url("../../img/horizontal-page.png");
+}
+
+.icon-vertical-page {
+    background-image: url("../../img/vertical-page.png");
 }

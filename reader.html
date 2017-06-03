@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/modules/icon.css">
     <link rel="stylesheet" href="css/modules/modal.css">
     <link rel="stylesheet" href="css/modules/form.css">
+    <link rel="stylesheet" href="css/modules/tab.css">
     <link rel="stylesheet" href="css/pages/reader.css">
 </head>
 <body>
@@ -25,9 +26,8 @@
     </div>
     <div class="main">
         <div class="slidebar on toc-button"></div>
-        <div class="page">
-
-        </div>
+        <div class="page"></div>
+        <div class="page doc hide"></div>
     </div>
 </main>
 
@@ -66,16 +66,47 @@
 
 <!--设置panel-->
 <div class="modal" id="setting-panel">
-    <div class="modal-header"></div>
+    <div class="modal-header">Setting</div>
     <div class="modal-content">
         <!--字体：字体族、颜色、大小-->
         <!--theme：普通、夜间-->
         <!--阅读模式：单页阅读、双页阅读、文档阅读-->
-        <!--tab?-->
+        <div id="setting-tab" class="tab-set">
+            <ul class="tabs">
+                <li class="tab active"><a href="#font-setting">font</a></li>
+                <li class="tab"><a href="#page-setting">page</a></li>
+            </ul>
+            <div class="tab-panel" id="font-setting">
+                <div class="font-size-control">
+                    <button class="btn-tip font-size-reduce">
+                        <i class="material-icons">remove</i>
+                    </button>
+                    <span class="font-size">100%</span>
+                    <button class="btn-tip font-size-add">
+                        <i class="material-icons">add</i>
+                    </button>
+                </div>
+            </div>
+            <div class="tab-panel" id="page-setting">
+                <div class="page-control">
+                    <div>
+                        <input type="radio" id="horizontal" name="page-mode">
+                        <label for="horizontal">
+                            <i class="icon-horizontal-page"></i>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="vertical" name="page-mode">
+                        <label for="vertical">
+                            <i class="icon-vertical-page"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
-        <button class="btn-tip modal-close" modal-target="setting-panel">Save</button>
-        <button class="btn-tip modal-close" modal-target="setting-panel">Cancel</button>
+        <button class="btn-tip modal-close" modal-target="setting-panel">Close</button>
     </div>
 </div>
 
@@ -88,6 +119,7 @@
     <ul class="book-mark-content">
     </ul>
 </div>
+<div class="book-mark-overlay"></div>
 
 <!--book-mark-modal-->
 <div class="modal" id="book-mark-modal">
@@ -108,7 +140,7 @@
 
 <!--color-panel-->
 <div class="modal" id="color-panel">
-    <div class="modal-header"></div>
+    <div class="modal-header">Color</div>
     <div class="modal-content">
         <ul class="color-list">
             <li class="color-item"></li>
@@ -129,6 +161,7 @@
 <script type="text/javascript" src="js/bookDB.js"></script>
 <script type="text/javascript" src="js/drag.js"></script>
 <script type="text/javascript" src="js/modal.js"></script>
+<script type="text/javascript" src="js/tab.js"></script>
 <script type="text/javascript" src="js/currentLocation.js"></script>
 <script type="text/javascript" src="js/bookMark.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>

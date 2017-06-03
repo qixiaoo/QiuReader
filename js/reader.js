@@ -36,7 +36,7 @@ function init() {
                 });
 
                 // 设置样式
-                book.setStyle('user-select', 'none'); // 禁用文字选择
+                //book.setStyle('user-select', 'none'); // 禁用文字选择
                 book.setStyle('background-color', 'transparent'); // 背景透明
 
                 // 设置背景色
@@ -378,7 +378,9 @@ document.getElementById('normal-screen')
         // todo 恢复进度
     });
 
-// 展示书签面板
+/* 书签面板的事件处理程序 */
+
+// 更新书签面板内容
 function refreshMarkPanel() {
     var ul = document.getElementsByClassName('book-mark-content')[0];
     var marList = bookMark.getBookMarks();
@@ -462,6 +464,46 @@ document.getElementById('book-mark-modal')
         }
     });
 
+/* 设置面板相关部分 */
+
+// 水平翻页
+document.getElementById('horizontal')
+    .addEventListener('click', function (e) {
+        var pageSingle = document.getElementsByClassName('page')[0],
+            pageFull = document.getElementsByClassName('page')[1];
+
+        pageSingle.classList.remove('hide');
+        pageFull.classList.add('hide');
+    });
+
+// 垂直滚动翻页
+document.getElementById('vertical')
+    .addEventListener('click', function (e) {
+        var pageSingle = document.getElementsByClassName('page')[0],
+            pageFull = document.getElementsByClassName('page')[1],
+            iframe = document.createElement('iframe'),
+            link = document.createElement('link');
+
+        pageFull.innerHTML = ''; // todo 根据setting判断页面是否变化
+
+        iframe.width = '100%';
+        iframe.height = '100%';
+        pageFull.appendChild(iframe);
+        iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
+        link.rel = 'stylesheet';
+        link.href = '/QiuReader/css/epub/common.css';
+        iframe.contentDocument.head.appendChild(link);
+
+        pageFull.classList.remove('hide');
+        pageSingle.classList.add('hide');
+    });
+
+// 字体调节
+document.getElementsByClassName('font-size-control')[0]
+    .addEventListener('click', function (e) {
+        var target = e.target;
+    });
+
 window.onload = function () {
     init();
 
@@ -474,6 +516,8 @@ window.onload = function () {
 
     // 初始化模态框
     QiuModal.init();
+
+    new QiuTab('setting-tab');
 
     refreshMarkPanel();  // 初始化书签面板
 };
