@@ -8,7 +8,9 @@ Object.defineProperty(tocSide, 'visible', {
     set: function (val) {
         this.isVisible = val;
         var tocSide = document.getElementsByClassName('toc-side')[0];
+        var tocBtn = document.getElementsByClassName('toc-button')[0];
         !val ? tocSide.classList.add('off') : tocSide.classList.remove('off');
+        !val ? tocBtn.classList.remove('on') : tocBtn.classList.add('on');
     }
 });
 
@@ -36,7 +38,7 @@ function init() {
                 });
 
                 // 设置样式
-                book.setStyle('user-select', 'none'); // 禁用文字选择
+                //book.setStyle('user-select', 'none'); // 禁用文字选择
                 book.setStyle('background-color', 'transparent'); // 背景透明
 
                 // 设置背景色
@@ -48,6 +50,19 @@ function init() {
                 // 跳转到上一次阅读点
                 if (currentLocation.getCurrentCfi())
                     book.gotoCfi(currentLocation.getCurrentCfi());
+
+                var flag = 0; // todo
+
+                // 用户自定义设置
+                book.on('renderer:chapterDisplayed', function () {
+                    if (flag === 0) {
+                        QiuSettings.init();
+                        tocSide.visible = QiuSettings.sideToc;
+                        QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                        setFontSize(QiuSettings.fontSize);
+                        flag++;
+                    }
+                });
             },
             function () {
                 alert('获取书籍信息失败，请返回首页重试！');
@@ -91,6 +106,11 @@ document.getElementsByClassName('toc')[0]
             var href = target.getAttribute('href');
             book.goto(href).then(function () {
                 currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+                setVerticalMode();
+                if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false)
+                    setTimeout(function () {
+                        pageYScrollTo(href.split('#')[1]);
+                    }, 10);
             });
             e.preventDefault();
             console.log(href + " " + currentLocation.getCurrentCfi());
@@ -159,6 +179,7 @@ document.getElementsByClassName('toc-button')[0]
         var self = this;
         self.classList.contains('on') ? this.classList.remove('on') : this.classList.add('on');
         tocSide.visible = self.classList.contains('on');
+        QiuSettings.setSideToc(tocSide.isVisible);
     });
 
 // 翻页快捷键的事件处理程序
@@ -235,6 +256,49 @@ EPUBJS.Hooks.register('beforeChapterDisplay').pageAnimation = function (callback
 EPUBJS.Render.Iframe.prototype.setLeft = function (leftPos) {
     this.docEl.style[this.transform] = 'translate(' + (-leftPos) + 'px, 0)';
 };
+
+// 翻页按钮
+document.getElementsByClassName('main')[0]
+    .addEventListener('click', function (e) {
+
+        var target = e.target,
+            spineLen = book.spine.length,
+            currentChapterPos = book.renderer.currentChapter.spinePos;
+
+        if (target.classList && target.classList.contains('prev-page')) {
+            if (QiuSettings.pageMode) {
+                book.prevPage();
+            } else {
+                if ((currentChapterPos - 1) < 0) {
+                    alert('没有上一章了~');
+                    return;
+                } else {
+                    book.displayChapter(currentChapterPos - 1)
+                        .then(function () {
+                            setVerticalMode();
+                        });
+                }
+            }
+            currentLocation.recordCurrentCfi();
+        }
+
+        if (target.classList && target.classList.contains('next-page')) {
+            if (QiuSettings.pageMode) {
+                book.nextPage();
+            } else {
+                if ((currentChapterPos + 1) >= spineLen) {
+                    alert('没有下一章了~');
+                    return;
+                } else {
+                    book.displayChapter(currentChapterPos + 1)
+                        .then(function () {
+                            setVerticalMode();
+                        });
+                }
+            }
+            currentLocation.recordCurrentCfi();
+        }
+    });
 
 /* tool-bar 的事件处理程序 */
 
@@ -378,7 +442,9 @@ document.getElementById('normal-screen')
         // todo 恢复进度
     });
 
-// 展示书签面板
+/* 书签面板的事件处理程序 */
+
+// 更新书签面板内容
 function refreshMarkPanel() {
     var ul = document.getElementsByClassName('book-mark-content')[0];
     var marList = bookMark.getBookMarks();
@@ -427,6 +493,8 @@ document.getElementById('book-mark-panel')
             cfi = target.parentNode.parentNode.getAttribute('data-cfi');
             book.gotoCfi(cfi).then(function () {
                 currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+                if (!QiuSettings.pageMode)
+                    setVerticalMode();
             });
         }
 
@@ -462,6 +530,104 @@ document.getElementById('book-mark-modal')
         }
     });
 
+/* 设置面板相关部分 */
+
+// 水平翻页
+document.getElementById('horizontal')
+    .addEventListener('click', setHorizontalMode);
+
+// 垂直滚动翻页
+document.getElementById('vertical')
+    .addEventListener('click', setVerticalMode);
+
+function setHorizontalMode() {
+    var pageSingle = document.getElementsByClassName('page')[0],
+        pageFull = document.getElementsByClassName('page')[1];
+
+    pageSingle.classList.remove('hide');
+    pageFull.classList.add('hide');
+
+    QiuSettings.setPageMode(true);
+}
+
+// todo 可以优化
+function setVerticalMode() {
+    var pageSingle = document.getElementsByClassName('page')[0],
+        pageFull = document.getElementsByClassName('page')[1],
+        iframe = document.createElement('iframe'),
+        link = document.createElement('link');
+
+    pageSingle.classList.add('hide');
+    pageFull.innerHTML = '';
+    iframe.width = '100%';
+
+    iframe.height = '100%';
+    iframe.id = 'full-page-iframe';
+    pageFull.appendChild(iframe);
+    iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
+    link.rel = 'stylesheet';
+    link.href = '/QiuReader/css/epub/common.css';
+    iframe.contentDocument.head.appendChild(link);
+    pageFull.classList.remove('hide');
+
+    QiuSettings.setPageMode(false);
+}
+
+// 字体调节
+document.getElementsByClassName('font-size-control')[0]
+    .addEventListener('click', function (e) {
+        var target = e.target,
+            size = parseInt(QiuSettings.fontSize),
+            reduceIcon = document.getElementsByClassName('font-size-reduce')[0].firstElementChild,
+            addIcon = document.getElementsByClassName('font-size-add')[0].firstElementChild;
+
+        // 避免点击在icon上不能改变大小
+        if ((target.classList && target.classList.contains('font-size-reduce')) || target === reduceIcon) {
+            size -= 10;
+            size += '%';
+            setFontSize(size);
+            QiuSettings.setFontSize(size);
+        }
+
+        if ((target.classList && target.classList.contains('font-size-add')) || target === addIcon) {
+            size += 10;
+            size += '%';
+            setFontSize(size);
+            QiuSettings.setFontSize(size);
+        }
+    });
+
+function setFontSize(size) {
+    var iframe,
+        tip = document.getElementsByClassName('font-size')[0];
+
+    if (QiuSettings.pageMode)
+        iframe = document.getElementsByClassName('page')[0].firstElementChild.firstElementChild;
+    else
+        iframe = document.getElementsByClassName('page')[1].firstElementChild;
+
+    iframe.contentDocument.getElementsByTagName('body')[0].style.fontSize = size;
+    tip.innerHTML = size;
+}
+
+// 锚点定位
+function pageYScrollTo(targetId) {
+    var iframe = document.getElementById('full-page-iframe');
+    var target = iframe.contentDocument.getElementById(targetId);
+    iframe.contentWindow.document.getElementsByTagName('body')[0].scrollTop = getElementTop(target);
+}
+
+// 获取元素在页面的纵坐标
+function getElementTop(element) {
+    var actualTop = element.offsetTop;
+    var current = element.offsetParent;
+    while (current !== null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+    return actualTop;
+}
+
 window.onload = function () {
     init();
 
@@ -474,6 +640,8 @@ window.onload = function () {
 
     // 初始化模态框
     QiuModal.init();
+
+    new QiuTab('setting-tab');
 
     refreshMarkPanel();  // 初始化书签面板
 };

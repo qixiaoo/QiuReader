@@ -1,0 +1,33 @@
+.tabs {
+    position: relative;
+    height: 48px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+}
+
+.tab {
+    height: inherit;
+    line-height: 48px;
+    text-align: center;
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+.tabs .tab a {
+    height: 100%;
+    display: block;
+    font-size: 14px;
+}
+
+.tabs .tab-slider {
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    background-color: #f5c18a;
+    transition: .3s;
+}
+
+.tab-panel {
+    margin: auto;
+}

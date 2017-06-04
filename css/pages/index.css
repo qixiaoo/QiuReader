@@ -98,7 +98,13 @@ main {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    width: inherit;
+    height: inherit;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .book-body {
