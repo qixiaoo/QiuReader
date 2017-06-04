@@ -140,7 +140,7 @@ iframe {
     width: 77%;
     display: flex;
     position: relative;
- }
+}
 
 .page {
     width: 700px; /* 单页，可调的宽度 */
@@ -157,6 +157,34 @@ iframe {
 
 .page.hide {
     display: none;
+}
+
+.prev-page, .next-page {
+    position: absolute;
+    display: flex;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    cursor: pointer;
+    transition: .5s;
+}
+
+.prev-page:hover, .next-page:hover {
+    background-color: rgba(180, 180, 180, 0.2)
+}
+
+.prev-page {
+    left: 25px;
+    top: 50%;
+    background: url("../../img/left-arrow.png") no-repeat center;
+    transform: translateY(-50%);
+}
+
+.next-page {
+    right: 25px;
+    top: 50%;
+    background: url("../../img/right-arrow.png") no-repeat center;
+    transform: translateY(-50%);
 }
 
 /*slidebar 默认为关闭的样式*/
@@ -213,8 +241,8 @@ iframe {
     border-radius: 4px;
     cursor: url("../../img/cursor-move.png"), auto;
     font-size: 0; /* hack: 去除inline-block间的空格 */
-    background: #ECE9E6;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to bottom, #FFFFFF, #ECE9E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: #ECE9E6; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to bottom, #FFFFFF, #ECE9E6); /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to bottom, #FFFFFF, #ECE9E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     box-shadow: 0 3px 15px 1px rgba(0, 0, 0, .2);
     transition: opacity .5s, transform .5s;
@@ -325,7 +353,7 @@ iframe {
     height: 100vh;
     width: 300px;
     background-color: #fff;
-    box-shadow: 2px 0 3px 0 rgba(0,0,0,.15);
+    box-shadow: 2px 0 3px 0 rgba(0, 0, 0, .15);
     z-index: 999;
     transition: transform .3s;
 }
@@ -370,7 +398,7 @@ iframe {
     height: inherit;
     width: 210px;
     cursor: pointer;
-    word-wrap:break-word;
+    word-wrap: break-word;
 }
 
 .book-mark-control {

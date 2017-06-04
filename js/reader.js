@@ -51,12 +51,17 @@ function init() {
                 if (currentLocation.getCurrentCfi())
                     book.gotoCfi(currentLocation.getCurrentCfi());
 
+                var flag = 0; // todo
+
                 // 用户自定义设置
-                book.on('renderer:chapterDisplayed', function(){
-                    QiuSettings.init();
-                    tocSide.visible = QiuSettings.sideToc;
-                    QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
-                    setFontSize(QiuSettings.fontSize);
+                book.on('renderer:chapterDisplayed', function () {
+                    if (flag === 0) {
+                        QiuSettings.init();
+                        tocSide.visible = QiuSettings.sideToc;
+                        QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                        setFontSize(QiuSettings.fontSize);
+                        flag++;
+                    }
                 });
             },
             function () {
@@ -101,10 +106,14 @@ document.getElementsByClassName('toc')[0]
             var href = target.getAttribute('href');
             book.goto(href).then(function () {
                 currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+                setVerticalMode();
+                if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false)
+                    setTimeout(function () {
+                        pageYScrollTo(href.split('#')[1]);
+                    }, 10);
             });
             e.preventDefault();
             console.log(href + " " + currentLocation.getCurrentCfi());
-            setVerticalMode();
         }
     });
 
@@ -247,6 +256,49 @@ EPUBJS.Hooks.register('beforeChapterDisplay').pageAnimation = function (callback
 EPUBJS.Render.Iframe.prototype.setLeft = function (leftPos) {
     this.docEl.style[this.transform] = 'translate(' + (-leftPos) + 'px, 0)';
 };
+
+// 翻页按钮
+document.getElementsByClassName('main')[0]
+    .addEventListener('click', function (e) {
+
+        var target = e.target,
+            spineLen = book.spine.length,
+            currentChapterPos = book.renderer.currentChapter.spinePos;
+
+        if (target.classList && target.classList.contains('prev-page')) {
+            if (QiuSettings.pageMode) {
+                book.prevPage();
+            } else {
+                if ((currentChapterPos - 1) < 0) {
+                    alert('没有上一章了~');
+                    return;
+                } else {
+                    book.displayChapter(currentChapterPos - 1)
+                        .then(function () {
+                            setVerticalMode();
+                        });
+                }
+            }
+            currentLocation.recordCurrentCfi();
+        }
+
+        if (target.classList && target.classList.contains('next-page')) {
+            if (QiuSettings.pageMode) {
+                book.nextPage();
+            } else {
+                if ((currentChapterPos + 1) >= spineLen) {
+                    alert('没有下一章了~');
+                    return;
+                } else {
+                    book.displayChapter(currentChapterPos + 1)
+                        .then(function () {
+                            setVerticalMode();
+                        });
+                }
+            }
+            currentLocation.recordCurrentCfi();
+        }
+    });
 
 /* tool-bar 的事件处理程序 */
 
@@ -441,6 +493,8 @@ document.getElementById('book-mark-panel')
             cfi = target.parentNode.parentNode.getAttribute('data-cfi');
             book.gotoCfi(cfi).then(function () {
                 currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
+                if (!QiuSettings.pageMode)
+                    setVerticalMode();
             });
         }
 
@@ -496,24 +550,25 @@ function setHorizontalMode() {
     QiuSettings.setPageMode(true);
 }
 
+// todo 可以优化
 function setVerticalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1],
         iframe = document.createElement('iframe'),
         link = document.createElement('link');
 
+    pageSingle.classList.add('hide');
     pageFull.innerHTML = '';
-
     iframe.width = '100%';
+
     iframe.height = '100%';
+    iframe.id = 'full-page-iframe';
     pageFull.appendChild(iframe);
     iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
     link.rel = 'stylesheet';
     link.href = '/QiuReader/css/epub/common.css';
     iframe.contentDocument.head.appendChild(link);
-
     pageFull.classList.remove('hide');
-    pageSingle.classList.add('hide');
 
     QiuSettings.setPageMode(false);
 }
@@ -553,6 +608,24 @@ function setFontSize(size) {
 
     iframe.contentDocument.getElementsByTagName('body')[0].style.fontSize = size;
     tip.innerHTML = size;
+}
+
+// 锚点定位
+function pageYScrollTo(targetId) {
+    var iframe = document.getElementById('full-page-iframe');
+    var target = iframe.contentDocument.getElementById(targetId);
+    iframe.contentWindow.document.getElementsByTagName('body')[0].scrollTop = getElementTop(target);
+}
+
+// 获取元素在页面的纵坐标
+function getElementTop(element) {
+    var actualTop = element.offsetTop;
+    var current = element.offsetParent;
+    while (current !== null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+    return actualTop;
 }
 
 window.onload = function () {
