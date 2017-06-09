@@ -126,6 +126,27 @@ iframe {
     background-color: #726E6B;
 }
 
+.item-mark:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 17px;
+    height: 17px;
+    transition: transform .3s;
+}
+
+.item-mark.expand:before {
+    background: url("../../img/collapse.png") center no-repeat;
+    transform: rotate(90deg);
+}
+
+.item-mark.collapse:before {
+    background: url("../../img/collapse.png") center no-repeat;
+    transform: rotate(0);
+}
+
 .item-mark:hover {
     border-color: #F5C28A;
 }

@@ -35,6 +35,7 @@ function init() {
                     var ul = generateToc(toc, false);
                     ul.classList.add('root-list'); // 'root-list' 用于标记根列表
                     document.getElementsByClassName('toc')[0].appendChild(ul);
+                    setCollapseStyle(); // 设置折叠的样式
                 });
 
                 // 设置样式
@@ -130,7 +131,7 @@ document.getElementsByClassName('toc')[0]
         if (target && target.className.indexOf('item-mark') !== -1) {
             var subChapList = target.parentNode.nextElementSibling;
             if (subChapList && subChapList.className.indexOf('chapter-list') !== -1) {
-                // IE 不支持此方法
+                // IE 不支持classList
                 if (subChapList.classList.contains('collapse')) {
                     subChapList.classList.remove('collapse');
                     subChapList.classList.add('expand');
@@ -141,6 +142,7 @@ document.getElementsByClassName('toc')[0]
                     changeHeight(subChapList, true);
                 }
                 e.preventDefault();
+                setCollapseStyle(); // 设置折叠样式
             }
         }
     });
@@ -176,6 +178,27 @@ function changeHeight(element, collapse) {
     while (parentList.classList.contains('chapter-list') && !parentList.classList.contains('root-list')) {
         parentList.style.height = getListHeight(parentList) + 'px';
         parentList = parentList.parentNode.parentNode;
+    }
+}
+
+// 检查目录列表，根据其是否折叠来添加折叠样式
+function setCollapseStyle() {
+    var doc = document.getElementsByClassName('toc')[0],
+        uls = document.getElementsByClassName('chapter-list'),
+        itemMark,
+        i;
+
+    for (i = 0; i < uls.length; i++) {
+        if (uls[i].className.indexOf('root-list') !== -1)
+            continue;
+        itemMark = uls[i].parentNode.firstElementChild.firstElementChild;
+        if (uls[i].classList.contains('collapse')) {
+            itemMark.classList.remove('expand');
+            itemMark.classList.add('collapse');
+        } else {
+            itemMark.classList.remove('collapse');
+            itemMark.classList.add('expand');
+        }
     }
 }
 
