@@ -81,7 +81,7 @@
         if (markJSON) {
             marks = JSON.parse(markJSON);
             if (marks && marks[bookKey]) {
-                marks[bookKey] = [];
+                delete marks[bookKey]; // 删除此属性
                 localStorage.setItem('book-marks', JSON.stringify(marks));
             }
         }

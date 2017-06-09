@@ -62,6 +62,14 @@ function init() {
                         setFontSize(QiuSettings.fontSize);
                         flag++;
                     }
+
+                    QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                    setFontSize(QiuSettings.fontSize); // 每次渲染成功后应用设置的字体
+                });
+
+                // 监听进度变化，记录进度信息
+                book.on('renderer:locationChanged', function(locationCfi){
+                    currentLocation.recordCurrentCfi(); // 记录当前阅读进度
                 });
             },
             function () {
@@ -105,10 +113,8 @@ document.getElementsByClassName('toc')[0]
         if (target && target.nodeName.toLocaleLowerCase() === 'a' && target.className.indexOf('chapter-url') !== -1) {
             var href = target.getAttribute('href');
             book.goto(href).then(function () {
-                currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
-                setVerticalMode();
                 if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false)
-                    setTimeout(function () {
+                    setTimeout(function () { // todo 让样式表生效后计算正确高度，需修改
                         pageYScrollTo(href.split('#')[1]);
                     }, 10);
             });
@@ -191,7 +197,6 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.keyCode == 37 || e.keyCode == 38) {
             book.prevPage();
-            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -201,7 +206,6 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.keyCode == 39 || e.keyCode == 40) {
             book.nextPage();
-            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -216,7 +220,6 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.wheelDelta > 0) {
             book.prevPage();
-            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -226,7 +229,6 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
 
         if (e.wheelDelta < 0) {
             book.nextPage();
-            currentLocation.recordCurrentCfi();
             lock = true;
             setTimeout(function () {
                 lock = false;
@@ -273,13 +275,9 @@ document.getElementsByClassName('main')[0]
                     alert('没有上一章了~');
                     return;
                 } else {
-                    book.displayChapter(currentChapterPos - 1)
-                        .then(function () {
-                            setVerticalMode();
-                        });
+                    book.displayChapter(currentChapterPos - 1);
                 }
             }
-            currentLocation.recordCurrentCfi();
         }
 
         if (target.classList && target.classList.contains('next-page')) {
@@ -288,15 +286,10 @@ document.getElementsByClassName('main')[0]
             } else {
                 if ((currentChapterPos + 1) >= spineLen) {
                     alert('没有下一章了~');
-                    return;
                 } else {
-                    book.displayChapter(currentChapterPos + 1)
-                        .then(function () {
-                            setVerticalMode();
-                        });
+                    book.displayChapter(currentChapterPos + 1);
                 }
             }
-            currentLocation.recordCurrentCfi();
         }
     });
 
@@ -491,11 +484,7 @@ document.getElementById('book-mark-panel')
         // 跳转
         if (target.nodeName.toLocaleLowerCase() === 'a') {
             cfi = target.parentNode.parentNode.getAttribute('data-cfi');
-            book.gotoCfi(cfi).then(function () {
-                currentLocation.recordCurrentCfi(); // 记录当前阅读到的位置
-                if (!QiuSettings.pageMode)
-                    setVerticalMode();
-            });
+            book.gotoCfi(cfi);
         }
 
         e.preventDefault();
@@ -532,25 +521,27 @@ document.getElementById('book-mark-modal')
 
 /* 设置面板相关部分 */
 
-// 水平翻页
+// 设置为水平翻页
 document.getElementById('horizontal')
     .addEventListener('click', setHorizontalMode);
 
-// 垂直滚动翻页
+// 设置为垂直滚动翻页
 document.getElementById('vertical')
     .addEventListener('click', setVerticalMode);
 
+// 由垂直滚动切换到水平翻页
 function setHorizontalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1];
 
-    pageSingle.classList.remove('hide');
     pageFull.classList.add('hide');
+    pageSingle.classList.remove('hide');
 
     QiuSettings.setPageMode(true);
+    setFontSize(QiuSettings.fontSize);
 }
 
-// todo 可以优化
+// 由水平翻页切换到垂直滚动
 function setVerticalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1],
@@ -558,6 +549,7 @@ function setVerticalMode() {
         link = document.createElement('link');
 
     pageSingle.classList.add('hide');
+    pageFull.classList.add('hide');
     pageFull.innerHTML = '';
     iframe.width = '100%';
 
@@ -571,6 +563,7 @@ function setVerticalMode() {
     pageFull.classList.remove('hide');
 
     QiuSettings.setPageMode(false);
+    setFontSize(QiuSettings.fontSize);
 }
 
 // 字体调节
