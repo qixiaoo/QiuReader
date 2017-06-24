@@ -153,6 +153,11 @@ iframe {
 
 .chapter-url {
     font-size: .875rem;
+    transition: none;
+}
+
+.chapter-url:active {
+    color: #f58f48;
 }
 
 /* 右侧 */
@@ -420,6 +425,14 @@ iframe {
     width: 210px;
     cursor: pointer;
     word-wrap: break-word;
+}
+
+.book-mark-cfi a {
+    transition: none;;
+}
+
+.book-mark-cfi a:active {
+    color: #f58f48;
 }
 
 .book-mark-control {

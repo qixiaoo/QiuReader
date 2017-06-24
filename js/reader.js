@@ -1,4 +1,5 @@
 var book = null; // 书籍
+var bookMarkFlag = false; // 标记：是否可以开始书签跳转了
 
 var tocSide = {
     isVisible: false
@@ -48,29 +49,37 @@ function init() {
                 // 渲染
                 book.renderTo(page);
 
-                // 跳转到上一次阅读点
-                if (currentLocation.getCurrentCfi())
-                    book.gotoCfi(currentLocation.getCurrentCfi());
+                var initializing = true; // todo
+                var pos;
 
-                var flag = 0; // todo
+                // 跳转到上一次阅读点
+                if (currentLocation.getCurrentLocation()) {
+                    pos = currentLocation.getCurrentLocation();
+                    book.gotoCfi(pos.cfi);
+                }
 
                 // 用户自定义设置
                 book.on('renderer:chapterDisplayed', function () {
-                    if (flag === 0) {
+                    if (initializing) {
                         QiuSettings.init();
                         tocSide.visible = QiuSettings.sideToc;
                         QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
                         setFontSize(QiuSettings.fontSize);
-                        flag++;
+                        if (!QiuSettings.pageMode && currentLocation.getCurrentLocation() && currentLocation.getCurrentLocation().posY) {
+                            setYScroll(currentLocation.getCurrentLocation().posY);
+                        }
+                        initializing = false;
+                    } else {
+                        QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                        setFontSize(QiuSettings.fontSize); // 每次渲染成功后应用设置的字体
+                        bookMarkFlag = true;
                     }
-
-                    QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
-                    setFontSize(QiuSettings.fontSize); // 每次渲染成功后应用设置的字体
                 });
 
                 // 监听进度变化，记录进度信息
-                book.on('renderer:locationChanged', function(locationCfi){
-                    currentLocation.recordCurrentCfi(); // 记录当前阅读进度
+                book.on('renderer:locationChanged', function (locationCfi) {
+                    if (!initializing) // 避免初始化时覆盖历史阅览进度
+                        currentLocation.recordCurrentLocation(); // 记录当前阅读进度
                 });
             },
             function () {
@@ -120,7 +129,7 @@ document.getElementsByClassName('toc')[0]
                     }, 10);
             });
             e.preventDefault();
-            console.log(href + " " + currentLocation.getCurrentCfi());
+            console.log(href + " " + currentLocation.getCurrentLocation());
         }
     });
 
@@ -464,11 +473,13 @@ document.getElementById('normal-screen')
 function refreshMarkPanel() {
     var ul = document.getElementsByClassName('book-mark-content')[0];
     var marList = bookMark.getBookMarks();
-    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons book-mark-panel-edit" title="edit">assignment</i></div></li>';
+    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}" data-pos-y="{posY}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons book-mark-panel-edit" title="edit">assignment</i></div></li>';
     var resultStr = '';
 
     marList.forEach(function (e) {
-        resultStr += itemStr.replace('{cfi}', e.cfi).replace('{name}', e.name);
+        resultStr += itemStr.replace('{cfi}', e.cfi)
+            .replace('{name}', e.name)
+            .replace('{posY}', e.posY);
     });
 
     ul.innerHTML = resultStr;
@@ -482,7 +493,8 @@ document.getElementById('book-mark-panel')
             target = e.target,
             ul = document.getElementsByClassName('book-mark-content')[0],
             li,
-            cfi;
+            cfi,
+            posY;
 
         // 关闭面板
         if (target.className && target.className.indexOf('book-mark-panel-close') !== -1)
@@ -506,8 +518,23 @@ document.getElementById('book-mark-panel')
 
         // 跳转
         if (target.nodeName.toLocaleLowerCase() === 'a') {
+            bookMarkFlag = false;
             cfi = target.parentNode.parentNode.getAttribute('data-cfi');
             book.gotoCfi(cfi);
+
+            // 在页面切换后定位 todo 更好的处理方式,观察者模式？
+            if (!QiuSettings.pageMode) {
+                setTimeout(function () {
+                    if (bookMarkFlag) {
+                        posY = target.parentNode.parentNode.getAttribute('data-pos-y');
+                        setYScroll(posY);
+                        bookMarkFlag = false;
+                    } else {
+                        setTimeout(arguments.callee, 10);
+                    }
+
+                }, 10);
+            }
         }
 
         e.preventDefault();
@@ -568,18 +595,14 @@ function setHorizontalMode() {
 function setVerticalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1],
-        iframe = document.createElement('iframe'),
+        iframe = document.getElementById('full-page-iframe'),
         link = document.createElement('link'),
         script;
 
     pageSingle.classList.add('hide');
     pageFull.classList.add('hide');
-    pageFull.innerHTML = '';
-    iframe.width = '100%';
-
-    iframe.height = '100%';
-    iframe.id = 'full-page-iframe';
-    pageFull.appendChild(iframe);
+    iframe.contentDocument.head.innerHTML = '';
+    iframe.contentDocument.body.innerHTML = '';
     iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
     link.rel = 'stylesheet';
     link.href = '/QiuReader/css/epub/common.css';
@@ -589,11 +612,18 @@ function setVerticalMode() {
     QiuSettings.setPageMode(false);
     setFontSize(QiuSettings.fontSize);
 
+    setYScroll(0);
+
     // 为页面添加动态脚本
     script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = '/QiuReader/js/epub/locate.js';
     iframe.contentDocument.body.appendChild(script);
+
+    // 监听进度变化，记录进度信息
+    iframe.contentWindow.onscroll = function () {
+        currentLocation.recordCurrentLocation();
+    };
 }
 
 // 字体调节
@@ -649,6 +679,21 @@ function getElementTop(element) {
         current = current.offsetParent;
     }
     return actualTop;
+}
+
+// 设置垂直滚动模式下滚动条距顶部的距离
+function setYScroll(posY) {
+    var iframe = document.getElementById('full-page-iframe');
+    iframe.contentWindow.document.getElementsByTagName('body')[0].scrollTop = posY;
+}
+
+// 获取垂直滚动模式下滚动条距顶部的距离
+function getYScroll() {
+    if (QiuSettings.pageMode) {
+        return 0;
+    }
+    var iframe = document.getElementById('full-page-iframe');
+    return iframe.contentWindow.document.getElementsByTagName('body')[0].scrollTop;
 }
 
 window.onload = function () {

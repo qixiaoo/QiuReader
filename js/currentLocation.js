@@ -1,23 +1,32 @@
 // 记录书籍的阅读进度信息
 var currentLocation = {
 
-    // todo vertical 模式记录位置
-    recordCurrentCfi: function () {
+    // 分隔符
+    separator: ' qiu-separator ',
+
+    recordCurrentLocation: function () {
         var bookKey = localStorage.getItem('reading');
-        var current = book.getCurrentLocationCfi();
-        localStorage.setItem('currentLocationCfi'+bookKey, current);
+        var currentCfi = book.getCurrentLocationCfi();
+        var currentY = getYScroll();
+        var current = currentCfi + this.separator + currentY;
+        localStorage.setItem('currentLocationCfi' + bookKey, current);
     },
 
-    getCurrentCfi: function () {
+    getCurrentLocation: function () {
         var bookKey = localStorage.getItem('reading');
 
-        for(var i = 0; i < localStorage.length; i++){
-            if (localStorage.key(i) === ('currentLocationCfi'+bookKey)) {
-                return localStorage.getItem(localStorage.key(i));
+        for (var i = 0; i < localStorage.length; i++) {
+            if (localStorage.key(i) === ('currentLocationCfi' + bookKey)) {
+                var value = localStorage.getItem(localStorage.key(i));
+                var result = {};
+                result.cfi = value.split(this.separator)[0];
+                result.posY = value.split(this.separator)[1];
+
+                return result;
             }
         }
 
-        return '';
+        return false;
     },
 
     // 清除特定书籍的进度信息
@@ -25,7 +34,7 @@ var currentLocation = {
         var i;
 
         for (i = 0; i < localStorage.length; i++) {
-            if (localStorage.key(i) === ('currentLocationCfi'+bookKey)) {
+            if (localStorage.key(i) === ('currentLocationCfi' + bookKey)) {
                 localStorage.removeItem(localStorage.key(i));
                 break;
             }

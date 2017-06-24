@@ -2,3 +2,13 @@ html {
     width: 700px;
     margin: auto;
 }
+
+::selection {
+    background: #00ad96;
+    color: #fff;
+}
+
+::-moz-selection {
+    background: #00ad96;
+    color: #fff;
+}

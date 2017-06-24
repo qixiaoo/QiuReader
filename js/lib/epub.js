@@ -6170,7 +6170,7 @@ EPUBJS.Locations.prototype.save = function(json){
 	return JSON.stringify(this._locations);
 };
 
-EPUBJS.Locations.prototype.getCurrent = function(json){
+EPUBJS.Locations.prototype.getCurrentLocation = function(json){
 	return this._current;
 };
 

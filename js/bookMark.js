@@ -9,9 +9,10 @@
     var marks = null,
         bookMark = {};
 
-    function MarkItem(cfi) {
+    function MarkItem(cfi, posY) {
         this.cfi = cfi;
         this.name = cfi;
+        this.posY = posY;
     }
 
     // 添加书签
@@ -19,7 +20,8 @@
         var key = localStorage.getItem('reading');
         var markJSON = localStorage.getItem('book-marks');
         var currentCfi = book.getCurrentLocationCfi();
-        var item = new MarkItem(currentCfi);
+        var currentPosY = getYScroll();
+        var item = new MarkItem(currentCfi, currentPosY);
 
         if (markJSON) {
             marks = JSON.parse(markJSON);
