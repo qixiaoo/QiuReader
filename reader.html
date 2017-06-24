@@ -21,7 +21,7 @@
 <main>
     <div class="toc-side">
         <div class="toc">
-            <div class="toc-head">目录</div>
+            <div class="toc-head">Table of Contents</div>
         </div>
     </div>
     <div class="main">
@@ -45,13 +45,13 @@
     <button class="tool-bar-btn" id="full-screen">
         <i class="material-icons">fullscreen</i>
     </button>
-    <button class="tool-bar-btn" id="normal-screen">
-        <i class="material-icons">fullscreen_exit</i>
-    </button>
     <button class="tool-bar-btn modal-trigger" id="setting" modal-target="setting-panel">
         <i class="material-icons">settings</i>
     </button>
-    <button class="tool-bar-btn" id="book-mark" title="鼠标左键：添加书签/鼠标右键：书签列表">
+    <button class="tool-bar-btn" id="book-mark-list">
+        <i class="material-icons">format_list_bulleted</i>
+    </button>
+    <button class="tool-bar-btn" id="book-mark">
         <i class="material-icons">bookmark</i>
     </button>
     <button class="tool-bar-btn modal-trigger" id="color" modal-target="color-panel">
@@ -117,7 +117,7 @@
 <!--book-mark-panel-->
 <div class="book-mark-panel hide" id="book-mark-panel">
     <div class="book-mark-head clear">
-        书签
+        Bookmarks
         <i class="material-icons book-mark-panel-close right">close</i>
     </div>
     <ul class="book-mark-content">

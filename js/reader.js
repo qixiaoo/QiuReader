@@ -388,8 +388,8 @@ document.getElementById('book-mark')
     });
 
 // tool-bar 书签按钮的事件处理程序——展开书签列表
-document.getElementById('book-mark')
-    .addEventListener('contextmenu', function (e) {
+document.getElementById('book-mark-list')
+    .addEventListener('click', function (e) {
 
         var panel = document.getElementById('book-mark-panel');
         panel.classList.remove('hide');
@@ -445,23 +445,6 @@ document.getElementById('full-screen')
             de.msRequestFullscreen();
         } else if (de.webkitRequestFullscreen) {
             de.webkitRequestFullScreen();
-        }
-
-        // todo 恢复进度
-    });
-
-// tool-bar 恢复屏幕大小按钮的事件处理程序
-document.getElementById('normal-screen')
-    .addEventListener('click', function (e) {
-
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
         }
 
         // todo 恢复进度
@@ -601,9 +584,8 @@ function setVerticalMode() {
 
     pageSingle.classList.add('hide');
     pageFull.classList.add('hide');
-    iframe.contentDocument.head.innerHTML = '';
-    iframe.contentDocument.body.innerHTML = '';
-    iframe.contentDocument.write(book.renderer.render.getDocumentElement().innerHTML);
+    iframe.contentDocument.head.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('head')[0].innerHTML;
+    iframe.contentDocument.body.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].innerHTML;
     link.rel = 'stylesheet';
     link.href = '/QiuReader/css/epub/common.css';
     iframe.contentDocument.head.appendChild(link);
