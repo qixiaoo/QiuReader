@@ -569,7 +569,8 @@ function setVerticalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1],
         iframe = document.createElement('iframe'),
-        link = document.createElement('link');
+        link = document.createElement('link'),
+        script;
 
     pageSingle.classList.add('hide');
     pageFull.classList.add('hide');
@@ -587,6 +588,12 @@ function setVerticalMode() {
 
     QiuSettings.setPageMode(false);
     setFontSize(QiuSettings.fontSize);
+
+    // 为页面添加动态脚本
+    script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '/QiuReader/js/epub/locate.js';
+    iframe.contentDocument.body.appendChild(script);
 }
 
 // 字体调节
