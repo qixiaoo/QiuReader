@@ -33,6 +33,10 @@ function locate(e) {
 
     for (i = 0; i < tocURLs.length; i++) {
         item = tocURLs[i];
+        if (href === 'reader.html') { // todo 临时解决base标签失效的问题
+            anchor ? window.parent.pageYScrollTo(anchor) : '';
+            return false;
+        }
         if (item.indexOf(href) !== -1) {
             book.goto(item).then(function () {
                 if (anchor)

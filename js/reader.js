@@ -1,5 +1,6 @@
 var book = null; // 书籍
 var bookMarkFlag = false; // 标记：是否可以开始书签跳转了
+var anchorFlag = false; // 标记：是否可以开始判断锚点位置以定位
 
 var tocSide = {
     isVisible: false
@@ -40,7 +41,6 @@ function init() {
                 });
 
                 // 设置样式
-                //book.setStyle('user-select', 'none'); // 禁用文字选择
                 book.setStyle('background-color', 'transparent'); // 背景透明
 
                 // 设置背景色
@@ -49,7 +49,7 @@ function init() {
                 // 渲染
                 book.renderTo(page);
 
-                var initializing = true; // todo
+                var initializing = true; // todo 更好的方式？
                 var pos;
 
                 // 跳转到上一次阅读点
@@ -73,6 +73,7 @@ function init() {
                         QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
                         setFontSize(QiuSettings.fontSize); // 每次渲染成功后应用设置的字体
                         bookMarkFlag = true;
+                        anchorFlag = true;
                     }
                 });
 
@@ -122,12 +123,25 @@ document.getElementsByClassName('toc')[0]
         var target = e.target;
         if (target && target.nodeName.toLocaleLowerCase() === 'a' && target.className.indexOf('chapter-url') !== -1) {
             var href = target.getAttribute('href');
-            book.goto(href).then(function () {
-                if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false)
-                    setTimeout(function () { // todo 让样式表生效后计算正确高度，需修改
-                        pageYScrollTo(href.split('#')[1]);
-                    }, 10);
-            });
+            var previousHref = book.renderer.currentChapter.href;
+
+            if (href.indexOf('#') !== -1 && previousHref.indexOf(href.split('#')[0]) !== -1) { // 说明页面未切换，直接用锚点定位
+                pageYScrollTo(href.split('#')[1]);
+            } else {
+                book.goto(href).then(function () {
+                    if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false) {
+                        setTimeout(function () { // todo 让样式表生效后计算正确高度，能否优化？
+                            if (anchorFlag) {
+                                pageYScrollTo(href.split('#')[1]);
+                                anchorFlag = false;
+                            } else {
+                                setTimeout(arguments.callee, 10);
+                            }
+                        }, 10);
+                    }
+                });
+            }
+
             e.preventDefault();
             console.log(href + " " + currentLocation.getCurrentLocation());
         }
@@ -429,7 +443,7 @@ document.getElementById('color-panel')
 // tool-bar 设置按钮的事件处理程序
 document.getElementById('setting')
     .addEventListener('click', function (e) {
-        // todo
+        // todo 后期用于添加setting的可配置内容
     });
 
 // tool-bar 全屏按钮的事件处理程序
@@ -456,13 +470,14 @@ document.getElementById('full-screen')
 function refreshMarkPanel() {
     var ul = document.getElementsByClassName('book-mark-content')[0];
     var marList = bookMark.getBookMarks();
-    var itemStr = '<li class="book-mark-item clear" data-cfi="{cfi}" data-pos-y="{posY}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons book-mark-panel-edit" title="edit">assignment</i></div></li>';
+    var itemStr = '<li class="book-mark-item clear" data-id="{id}" data-cfi="{cfi}" data-pos-y="{posY}"><div class="book-mark-cfi left"><a href="#!">{name}</a></div><div class="book-mark-control right"><i class="material-icons book-mark-panel-delete" title="delete">delete</i><i class="material-icons book-mark-panel-edit" title="edit">assignment</i></div></li>';
     var resultStr = '';
 
     marList.forEach(function (e) {
         resultStr += itemStr.replace('{cfi}', e.cfi)
             .replace('{name}', e.name)
-            .replace('{posY}', e.posY);
+            .replace('{posY}', e.posY)
+            .replace('{id}', e.id);
     });
 
     ul.innerHTML = resultStr;
@@ -476,6 +491,8 @@ document.getElementById('book-mark-panel')
             target = e.target,
             ul = document.getElementsByClassName('book-mark-content')[0],
             li,
+            prevCfi,
+            id,
             cfi,
             posY;
 
@@ -486,7 +503,8 @@ document.getElementById('book-mark-panel')
         // 删除书签
         if (target.className && target.className.indexOf('book-mark-panel-delete') !== -1) {
             li = target.parentNode.parentNode;
-            bookMark.removeBookMark(li.getAttribute('data-cfi'));
+            id = parseInt(li.getAttribute('data-id'));
+            bookMark.removeBookMark(id);
             ul.removeChild(li);
         }
 
@@ -494,7 +512,9 @@ document.getElementById('book-mark-panel')
         if (target.className && target.className.indexOf('book-mark-panel-edit') !== -1) {
             li = target.parentNode.parentNode;
             cfi = li.getAttribute('data-cfi');
+            id = li.getAttribute('data-id');
             modal.setAttribute('data-cfi', cfi);
+            modal.setAttribute('data-id', id);
             document.getElementById('book-mark-name').value = '';
             QiuModal.open('book-mark-modal'); // 打开编辑模态框
         }
@@ -503,21 +523,31 @@ document.getElementById('book-mark-panel')
         if (target.nodeName.toLocaleLowerCase() === 'a') {
             bookMarkFlag = false;
             cfi = target.parentNode.parentNode.getAttribute('data-cfi');
-            book.gotoCfi(cfi);
+            prevCfi = book.renderer.currentChapterCfiBase;
 
-            // 在页面切换后定位 todo 更好的处理方式,观察者模式？
-            if (!QiuSettings.pageMode) {
-                setTimeout(function () {
-                    if (bookMarkFlag) {
-                        posY = target.parentNode.parentNode.getAttribute('data-pos-y');
-                        setYScroll(posY);
-                        bookMarkFlag = false;
-                    } else {
-                        setTimeout(arguments.callee, 10);
-                    }
+            book.gotoCfi(cfi).then(function () {
 
-                }, 10);
-            }
+                // 当跳转前与跳转后是相同页面时由于不能触发修改bookMarkFlag的值，因此需要单独处理
+                if (cfi.indexOf(prevCfi) !== -1 && !QiuSettings.pageMode) { // 为真则说明目标页面与当前页面相同
+                    posY = target.parentNode.parentNode.getAttribute('data-pos-y');
+                    setYScroll(posY);
+                    return;
+                }
+
+                // 在页面切换后定位 todo 更好的处理方式,观察者模式？
+                if (!QiuSettings.pageMode) {
+                    setTimeout(function () {
+                        if (bookMarkFlag) {
+                            posY = target.parentNode.parentNode.getAttribute('data-pos-y');
+                            setYScroll(posY);
+                            bookMarkFlag = false;
+                        } else {
+                            setTimeout(arguments.callee, 10);
+                        }
+
+                    }, 10);
+                }
+            });
         }
 
         e.preventDefault();
@@ -529,24 +559,19 @@ document.getElementById('book-mark-modal')
         var modal = this,
             target = e.target,
             lis = document.getElementsByClassName('book-mark-item'),
-            cfi,
+            id,
             markName,
-            i,
-            j;
+            i;
 
         if (target.className && target.className.indexOf('book-mark-save') !== -1) {
-            cfi = modal.getAttribute('data-cfi');
+            id = modal.getAttribute('data-id');
             markName = document.getElementById('book-mark-name').value;
-            bookMark.modifyBookMark(cfi, markName);
+            bookMark.modifyBookMark(parseInt(id), markName);
 
             for (i = 0; i < lis.length; i++) {
-                if (lis[i].getAttribute('data-cfi') === cfi) {
-                    for (j = 0; j < lis[i].childNodes.length; j++) {
-                        if (lis[i].childNodes[j].nodeType === 1 && lis[i].childNodes[j].className.indexOf('book-mark-cfi') !== -1) {
-                            lis[i].childNodes[j].firstElementChild.innerHTML = markName;
-                            return;
-                        }
-                    }
+                if (lis[i].getAttribute('data-id') === id) {
+                    lis[i].getElementsByClassName('book-mark-cfi')[0].firstElementChild.innerHTML = markName;
+                    break;
                 }
             }
         }
@@ -586,6 +611,8 @@ function setVerticalMode() {
     pageFull.classList.add('hide');
     iframe.contentDocument.head.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('head')[0].innerHTML;
     iframe.contentDocument.body.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].innerHTML;
+    var style = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].style.cssText;
+    iframe.contentDocument.body.setAttribute('style', style);
     link.rel = 'stylesheet';
     link.href = '/QiuReader/css/epub/common.css';
     iframe.contentDocument.head.appendChild(link);

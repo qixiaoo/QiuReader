@@ -1,6 +1,7 @@
 // 记录书签信息
 // 以 book-marks 为键存储在 localStorage，值得 JSON 字符串
 // 序列化之前的对象以书籍的bookKey为属性，属性的值为MarkItem对象数组
+// MarkItem使用id为当前时间作为id
 
 (function (win) {
 
@@ -10,6 +11,7 @@
         bookMark = {};
 
     function MarkItem(cfi, posY) {
+        this.id = new Date().getTime();
         this.cfi = cfi;
         this.name = cfi;
         this.posY = posY;
@@ -53,7 +55,7 @@
     };
 
     // 删除某项书签
-    var removeBookMark = bookMark.removeBookMark = function (mark) {
+    var removeBookMark = bookMark.removeBookMark = function (markId) {
         var key = localStorage.getItem('reading');
         var markJSON = localStorage.getItem('book-marks');
         var markList;
@@ -63,7 +65,7 @@
             marks = marks ? marks : {};
             if (marks[key]) {
                 markList = marks[key].filter(function (elem) {
-                    return (elem.cfi !== mark);
+                    return (elem.id !== markId);
                 });
                 marks[key] = markList;
             } else
@@ -90,13 +92,13 @@
     };
 
     // 修改书签内容
-    var modifyBookMark = bookMark.modifyBookMark = function (cfi, name) {
+    var modifyBookMark = bookMark.modifyBookMark = function (markId, name) {
         var key = localStorage.getItem('reading');
         var markJSON = localStorage.getItem('book-marks');
         marks = JSON.parse(markJSON);
 
         marks[key].forEach(function (e, i, arr) {
-            arr[i].name = e.cfi === cfi ? name : arr[i].name;
+            arr[i].name = e.id === markId ? name : arr[i].name;
         });
 
         localStorage.setItem('book-marks', JSON.stringify(marks));
