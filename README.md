@@ -13,5 +13,7 @@ QiuReader 是一个仅在 chrome 浏览器下可用的简单的 epub 阅读器�
 
 1. 可以通过访问 [QiuReader](https://bubble-Q.github.io/QiuReader) 在线阅读。
 2. 通过 github 的“Download ZIP”功能下载到本地，解压后放在自己的服务器上，通过在浏览器下访问 `你的服务器地址/解压文件夹/index.html` 即可使用。
-3. 后期**可能**会以 chrome 插件的形式发布。
+3. 通过安装 [Firefox 插件](https://addons.mozilla.org/zh-CN/firefox/addon/qiureader/) 使用。
+4. 后期**可能**会以 chrome 插件的形式发布。
+
 
