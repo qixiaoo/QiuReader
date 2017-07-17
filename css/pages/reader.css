@@ -454,3 +454,66 @@ iframe {
     position: absolute;
     right: 20px;
 }
+
+/* 选中菜单 */
+.select-menu {
+    position: absolute;
+    visibility: hidden;
+    width: 250px;
+    padding: 10px 0;
+    background-color: #fff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .14);
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.menu-item {
+    padding: 4px 15px;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: rgba(220, 220, 220, .4);
+}
+
+.ann-color-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.select-menu .divider {
+    margin: 10px 0;
+}
+
+.ann-color {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform .3s;
+}
+
+.ann-color:hover {
+    transform: scale(1.2, 1.2);
+}
+
+.ann-underline-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.ann-underline {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    transition: transform .3s;
+}
+
+.ann-underline:hover {
+    transform: scale(1.2, 1.2);
+}

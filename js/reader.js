@@ -28,7 +28,7 @@ function init() {
                 var page = document.getElementsByClassName('page')[0];
                 var option = {
                     bookPath: result.content,
-                    restore: true
+                    restore: false
                 };
                 book = ePub(option);
 
@@ -75,6 +75,11 @@ function init() {
                         bookMarkFlag = true;
                         anchorFlag = true;
                     }
+                    var link = createLink('/QiuReader/css/epub/common.css');
+                    var script = createScript('/QiuReader/js/epub/selection.js');
+                    var iframe = document.getElementsByTagName('iframe')[0];
+                    iframe.contentDocument.head.appendChild(link);
+                    iframe.contentDocument.body.appendChild(script);
                 });
 
                 // 监听进度变化，记录进度信息
@@ -590,13 +595,17 @@ document.getElementById('vertical')
 // 由垂直滚动切换到水平翻页
 function setHorizontalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
-        pageFull = document.getElementsByClassName('page')[1];
+        pageFull = document.getElementsByClassName('page')[1],
+        iframe = document.getElementsByTagName('iframe')[0];
 
     pageFull.classList.add('hide');
     pageSingle.classList.remove('hide');
 
     QiuSettings.setPageMode(true);
     setFontSize(QiuSettings.fontSize);
+
+    QiuPen.create(iframe.contentWindow.document);
+    QiuPen.load(book);
 }
 
 // 由水平翻页切换到垂直滚动
@@ -604,7 +613,7 @@ function setVerticalMode() {
     var pageSingle = document.getElementsByClassName('page')[0],
         pageFull = document.getElementsByClassName('page')[1],
         iframe = document.getElementById('full-page-iframe'),
-        link = document.createElement('link'),
+        link,
         script;
 
     pageSingle.classList.add('hide');
@@ -613,8 +622,9 @@ function setVerticalMode() {
     iframe.contentDocument.body.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].innerHTML;
     var style = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].style.cssText;
     iframe.contentDocument.body.setAttribute('style', style);
-    link.rel = 'stylesheet';
-    link.href = '/QiuReader/css/epub/common.css';
+    link = createLink('/QiuReader/css/epub/single-page.css');
+    iframe.contentDocument.head.appendChild(link);
+    link = createLink('/QiuReader/css/epub/common.css');
     iframe.contentDocument.head.appendChild(link);
     pageFull.classList.remove('hide');
 
@@ -624,15 +634,18 @@ function setVerticalMode() {
     setYScroll(0);
 
     // 为页面添加动态脚本
-    script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '/QiuReader/js/epub/locate.js';
+    script = createScript('/QiuReader/js/epub/locate.js');
+    iframe.contentDocument.body.appendChild(script);
+    script = createScript('/QiuReader/js/epub/selection.js');
     iframe.contentDocument.body.appendChild(script);
 
     // 监听进度变化，记录进度信息
     iframe.contentWindow.onscroll = function () {
         currentLocation.recordCurrentLocation();
     };
+
+    QiuPen.create(iframe.contentWindow.document);
+    QiuPen.load(book);
 }
 
 // 字体调节
@@ -705,6 +718,71 @@ function getYScroll() {
     return iframe.contentWindow.document.getElementsByTagName('body')[0].scrollTop;
 }
 
+// 创建动态脚本
+function createScript(url) {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
+
+    return script;
+}
+
+// 创建动态样式表
+function createLink(url) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = url;
+
+    return link;
+}
+
+// 为 select menu 绑定事件
+document.getElementById('select-menu')
+    .addEventListener('click', function (e) {
+        var menu = this,
+            target = e.target,
+            classArr,
+            iframe,
+            result;
+
+        if (QiuSettings.pageMode) iframe = document.getElementsByTagName('iframe')[0];
+        else iframe = document.getElementsByTagName('iframe')[1];
+
+        if (target.className.indexOf('ann-color') !== -1) {
+            classArr = target.className.split(' ');
+            classArr.forEach(function (item) {
+                if (item.indexOf('hl-') !== -1) {
+                    QiuPen.highlighter.highlightSelection(item);
+                    QiuPen.save(book);
+                }
+            });
+        }
+        if (target.className.indexOf('ann-underline') !== -1) {
+            classArr = target.className.split(' ');
+            classArr.forEach(function (item) {
+                if (item.indexOf('line-') !== -1) {
+                    QiuPen.highlighter.highlightSelection(item);
+                    QiuPen.save(book);
+                }
+            });
+        }
+        if (target.className.indexOf('delete-hl') !== -1) {
+            QiuPen.highlighter.unhighlightSelection();
+            QiuPen.save(book);
+        }
+        if (target.className.indexOf('copy-text') !== -1) {
+            result = iframe.contentDocument.execCommand('copy', false);
+            !result ? console.log('failed to copy text to clipboard') : '';
+        }
+        if (target.className.indexOf('translate-text') !== -1) {
+            result = iframe.contentDocument.getSelection().toString();
+            // TODO feature in next version
+        }
+
+        menu.style.visibility = 'hidden';
+    });
+
 window.onload = function () {
     init();
 
@@ -721,4 +799,6 @@ window.onload = function () {
     new QiuTab('setting-tab');
 
     refreshMarkPanel();  // 初始化书签面板
+
+    QiuPen.init();
 };
