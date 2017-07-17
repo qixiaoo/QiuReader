@@ -35,3 +35,8 @@
 .hidden {
     display: none;
 }
+
+.divider {
+    height: 1px;
+    background-color: #e0e0e0;
+}
