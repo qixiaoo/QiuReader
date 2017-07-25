@@ -14,11 +14,17 @@
             QiuSettings.pageMode = o.pageMode;
             QiuSettings.fontSize = o.fontSize;
             QiuSettings.sideToc = o.sideToc;
+            QiuSettings.lineHeight = o.lineHeight;
+            QiuSettings.letterSpacing = o.letterSpacing;
+            QiuSettings.wordSpacing = o.wordSpacing;
         }
         else {
             QiuSettings.pageMode = true;
-            QiuSettings.fontSize = '100%';
+            QiuSettings.fontSize = '';
             QiuSettings.sideToc = true;
+            QiuSettings.lineHeight = '';
+            QiuSettings.letterSpacing = '';
+            QiuSettings.wordSpacing = '';
             localStorage.setItem('settings', JSON.stringify(QiuSettings));
         }
     };
@@ -35,6 +41,29 @@
 
     QiuSettings.setSideToc = function (visiable) {
         QiuSettings.sideToc = visiable;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setLineHeight = function (lineHeight) {
+        QiuSettings.lineHeight = lineHeight;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setLetterSpacing = function (letterSpacing) {
+        QiuSettings.letterSpacing = letterSpacing;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setWordSpacing = function (wordSpacing) {
+        QiuSettings.wordSpacing = wordSpacing;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.resetStyle = function () {
+        QiuSettings.fontSize = '';
+        QiuSettings.lineHeight = '';
+        QiuSettings.letterSpacing = '';
+        QiuSettings.wordSpacing = '';
         localStorage.setItem('settings', JSON.stringify(QiuSettings));
     };
     

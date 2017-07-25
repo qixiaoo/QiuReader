@@ -348,7 +348,7 @@ iframe {
 
 .font-size-control {
     height: 32px;
-    width: 40%;
+    width: 30%;
     margin: auto;
     display: flex;
     justify-content: space-between;
@@ -356,6 +356,10 @@ iframe {
 
 .font-size-control span {
     line-height: 32px;
+}
+
+.font-size-control button {
+    padding: .25em;
 }
 
 .page-control {
@@ -368,6 +372,88 @@ iframe {
 .page-control i {
     width: 24px;
     height: 24px;
+}
+
+.style-control {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 50px;
+    width: 40%;
+    margin: auto;
+}
+
+.letter-spacing-box {
+    position: relative;
+}
+
+.spacing-control > div {
+    width: 60%;
+    margin: auto;
+    justify-content: space-around;
+    display: flex;
+}
+
+.spacing-info {
+    width: 55%;
+}
+
+.ctrl-btns {
+    width: 40%;
+}
+
+.ctrl-btns button {
+    padding: .25em;
+    display: table-cell;
+}
+
+.ctrl-btns i {
+    vertical-align: middle;
+}
+
+.second-msg {
+    font-size: 14px;
+    color: gray;
+}
+
+.font-size, .line-height, .letter-spacing, .word-spacing {
+    font-size: 14px;
+}
+
+.stylesheet, .restore {
+    position: relative;
+    width: 55px;
+    height: 35px;
+    color: #4d4d4d;
+    border-radius: 5px;
+    background-color: rgba(200, 200, 200, .5);
+    cursor: pointer;
+    transition: background-color .3s;
+}
+
+.stylesheet:hover, .restore:hover {
+    background-color: #c8c8c8;
+}
+
+.stylesheet i , .restore i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.style-info {
+    margin-top: 20px;
+}
+
+.style-info a {
+    color: #8A6BBE;
+    text-decoration: none;
+}
+
+.style-info a:hover {
+    color: #7b5b96;
+    text-decoration: underline;
 }
 
 /* 书签栏 */

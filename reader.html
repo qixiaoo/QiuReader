@@ -42,28 +42,23 @@
     <button class="tool-bar-btn drag-me" id="drag-me">
         <i class="material-icons">drag_handle</i>
     </button>
-    <button class="tool-bar-btn" id="full-screen">
-        <i class="material-icons">fullscreen</i>
+    <button class="tool-bar-btn" data-full-screen="false" id="full-screen">
+        <i class="material-icons" title="full screen">fullscreen</i>
+        <i class="material-icons hidden" title="exit full screen">fullscreen_exit</i>
     </button>
-    <button class="tool-bar-btn modal-trigger" id="setting" modal-target="setting-panel">
+    <button class="tool-bar-btn modal-trigger" id="setting" modal-target="setting-panel" title="setting">
         <i class="material-icons">settings</i>
     </button>
-    <button class="tool-bar-btn" id="book-mark-list">
+    <button class="tool-bar-btn" id="book-mark-list" title="bookmark list">
         <i class="material-icons">format_list_bulleted</i>
     </button>
-    <button class="tool-bar-btn" id="book-mark">
+    <button class="tool-bar-btn" id="book-mark" title="add bookmark">
         <i class="material-icons">bookmark</i>
     </button>
-    <button class="tool-bar-btn modal-trigger" id="color" modal-target="color-panel">
+    <button class="tool-bar-btn modal-trigger" id="color" modal-target="color-panel" title="background color">
         <i class="material-icons">color_lens</i>
     </button>
-    <!--<button class="tool-bar-btn" id="font">-->
-    <!--<i class="material-icons">font_download</i>-->
-    <!--</button>-->
-    <!--<button class="tool-bar-btn" id="search">-->
-    <!--<i class="material-icons">search</i>-->
-    <!--</button>-->
-    <button class="tool-bar-btn" id="exit">
+    <button class="tool-bar-btn" id="exit" title="exit">
         <i class="material-icons">exit_to_app</i>
     </button>
 </div>
@@ -78,15 +73,17 @@
         <div id="setting-tab" class="tab-set">
             <ul class="tabs">
                 <li class="tab active"><a href="#font-setting">font</a></li>
+                <li class="tab"><a href="#spacing-setting">spacing</a></li>
+                <li class="tab"><a href="#style">style</a></li>
                 <li class="tab"><a href="#page-setting">page</a></li>
             </ul>
             <div class="tab-panel" id="font-setting">
                 <div class="font-size-control">
-                    <button class="btn-tip font-size-reduce">
+                    <button class="btn-tip small font-size-reduce">
                         <i class="material-icons">remove</i>
                     </button>
-                    <span class="font-size">100%</span>
-                    <button class="btn-tip font-size-add">
+                    <span class="font-size">default</span>
+                    <button class="btn-tip small font-size-add">
                         <i class="material-icons">add</i>
                     </button>
                 </div>
@@ -95,16 +92,78 @@
                 <div class="page-control">
                     <div>
                         <input type="radio" id="horizontal" name="page-mode">
-                        <label for="horizontal">
+                        <label for="horizontal" title="single page">
                             <i class="icon-horizontal-page"></i>
                         </label>
                     </div>
                     <div>
                         <input type="radio" id="vertical" name="page-mode">
-                        <label for="vertical">
+                        <label for="vertical" title="scroll">
                             <i class="icon-vertical-page"></i>
                         </label>
                     </div>
+                </div>
+            </div>
+            <div class="tab-panel" id="spacing-setting">
+                <div class="spacing-control">
+                    <div class="line-height-box">
+                        <div class="clear spacing-info">
+                            <span class="left second-msg">Line height</span>
+                            <span class="line-height right">default</span>
+                        </div>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small line-height-reduce">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <button class="btn-tip small line-height-add">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="letter-spacing-box">
+                        <div class="clear spacing-info">
+                            <span class="left second-msg">Letter spacing</span>
+                            <span class="letter-spacing right">default</span>
+                        </div>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small letter-spacing-reduce">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <button class="btn-tip small letter-spacing-add">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="word-spacing-box">
+                        <div class="clear spacing-info">
+                            <span class="left second-msg">Word spacing</span>
+                            <span class="word-spacing right">default</span>
+                        </div>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small word-spacing-reduce">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <button class="btn-tip small word-spacing-add">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-panel" id="style">
+                <div class="style-control">
+                    <label class="stylesheet" title="import stylesheet">
+                        <i class="material-icons">stars</i>
+                        <input type="file" accept="text/css" id="import-stylesheet" class="hidden">
+                    </label>
+                    <button class="restore" id="restore-style" title="revert to the default style">
+                        <i class="material-icons">restore</i>
+                    </button>
+                </div>
+                <div class="style-info">
+                    <span class="second-msg">find stylesheet?</span>
+                    &nbsp;
+                    <a href="https://github.com/bubble-Q/QiuReader/user-stylesheet" target="_blank">Go</a>
                 </div>
             </div>
         </div>

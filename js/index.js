@@ -174,12 +174,12 @@ document.getElementsByClassName('save-book-info')[0]
                                 .firstElementChild
                                 .firstElementChild
                                 .firstElementChild
-                                .innerHTML = title.value;
+                                .textContent = title.value;
                             book.firstElementChild
                                 .nextElementSibling
                                 .firstElementChild
                                 .lastElementChild
-                                .innerHTML = author.value;
+                                .textContent = author.value;
                             console.log('更新书籍信息成功');
                         },
                         function () {

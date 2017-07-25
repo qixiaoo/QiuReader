@@ -64,14 +64,14 @@ function init() {
                         QiuSettings.init();
                         tocSide.visible = QiuSettings.sideToc;
                         QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
-                        setFontSize(QiuSettings.fontSize);
+                        setStyle();
                         if (!QiuSettings.pageMode && currentLocation.getCurrentLocation() && currentLocation.getCurrentLocation().posY) {
                             setYScroll(currentLocation.getCurrentLocation().posY);
                         }
                         initializing = false;
                     } else {
                         QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
-                        setFontSize(QiuSettings.fontSize); // 每次渲染成功后应用设置的字体
+                        setStyle();
                         bookMarkFlag = true;
                         anchorFlag = true;
                     }
@@ -451,19 +451,52 @@ document.getElementById('setting')
         // todo 后期用于添加setting的可配置内容
     });
 
+// 进入全屏模式
+function launchFullscreen(element) {
+    if(element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if(element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if(element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    } else if(element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+    }
+}
+
+// 退出全屏模式
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    }
+}
+
 // tool-bar 全屏按钮的事件处理程序
 document.getElementById('full-screen')
     .addEventListener('click', function (e) {
         var de = document.documentElement;
+        var fullScreen = this.getAttribute('data-full-screen');
+        var fullIcon = this.firstElementChild;
+        var exitIcon = fullIcon.nextElementSibling;
 
-        if (de.requestFullscreen) {
-            de.requestFullscreen();
-        } else if (de.mozRequestFullScreen) {
-            de.mozRequestFullScreen();
-        } else if (de.msRequestFullscreen) {
-            de.msRequestFullscreen();
-        } else if (de.webkitRequestFullscreen) {
-            de.webkitRequestFullScreen();
+        fullIcon.classList.remove('hidden');
+        exitIcon.classList.remove('hidden');
+
+        if (fullScreen === 'true') {
+            exitFullscreen();
+            this.setAttribute('data-full-screen', 'false');
+            exitIcon.classList.add('hidden');
+        }
+        if (fullScreen === 'false') {
+            launchFullscreen(de);
+            this.setAttribute('data-full-screen', 'true');
+            fullIcon.classList.add('hidden');
         }
 
         // todo 恢复进度
@@ -575,7 +608,7 @@ document.getElementById('book-mark-modal')
 
             for (i = 0; i < lis.length; i++) {
                 if (lis[i].getAttribute('data-id') === id) {
-                    lis[i].getElementsByClassName('book-mark-cfi')[0].firstElementChild.innerHTML = markName;
+                    lis[i].getElementsByClassName('book-mark-cfi')[0].firstElementChild.textContent = markName;
                     break;
                 }
             }
@@ -602,7 +635,7 @@ function setHorizontalMode() {
     pageSingle.classList.remove('hide');
 
     QiuSettings.setPageMode(true);
-    setFontSize(QiuSettings.fontSize);
+    setStyle();
 
     QiuPen.create(iframe.contentWindow.document);
     QiuPen.load(book);
@@ -629,7 +662,7 @@ function setVerticalMode() {
     pageFull.classList.remove('hide');
 
     QiuSettings.setPageMode(false);
-    setFontSize(QiuSettings.fontSize);
+    setStyle();
 
     setYScroll(0);
 
@@ -648,42 +681,187 @@ function setVerticalMode() {
     QiuPen.load(book);
 }
 
-// 字体调节
+// 调整 font-size
 document.getElementsByClassName('font-size-control')[0]
     .addEventListener('click', function (e) {
         var target = e.target,
-            size = parseInt(QiuSettings.fontSize),
+            size = QiuSettings.fontSize ? parseInt(QiuSettings.fontSize) : 16,
             reduceIcon = document.getElementsByClassName('font-size-reduce')[0].firstElementChild,
             addIcon = document.getElementsByClassName('font-size-add')[0].firstElementChild;
 
         // 避免点击在icon上不能改变大小
         if ((target.classList && target.classList.contains('font-size-reduce')) || target === reduceIcon) {
-            size -= 10;
-            size += '%';
-            setFontSize(size);
+            size -= 1;
+            size += 'px';
             QiuSettings.setFontSize(size);
+            setStyle();
         }
-
         if ((target.classList && target.classList.contains('font-size-add')) || target === addIcon) {
-            size += 10;
-            size += '%';
-            setFontSize(size);
+            size += 1;
+            size += 'px';
             QiuSettings.setFontSize(size);
+            setStyle();
         }
     });
 
-function setFontSize(size) {
-    var iframe,
-        tip = document.getElementsByClassName('font-size')[0];
+// 调整 line-height
+document.getElementsByClassName('line-height-box')[0]
+    .addEventListener('click', function (e) {
+        var target = e.target,
+            value = QiuSettings.lineHeight ? parseFloat(QiuSettings.lineHeight) : 1.2,
+            reduceIcon = document.getElementsByClassName('line-height-reduce')[0].firstElementChild,
+            addIcon = document.getElementsByClassName('line-height-add')[0].firstElementChild;
 
-    if (QiuSettings.pageMode)
+        if ((target.classList && target.classList.contains('line-height-reduce')) || target === reduceIcon) {
+            value -= 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'em';
+            QiuSettings.setLineHeight(value);
+            setStyle();
+        }
+        if ((target.classList && target.classList.contains('line-height-add')) || target === addIcon) {
+            value += 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'em';
+            QiuSettings.setLineHeight(value);
+            setStyle();
+        }
+    });
+
+// 调整 letter-spacing
+document.getElementsByClassName('letter-spacing-box')[0]
+    .addEventListener('click', function (e) {
+        var target = e.target,
+            value = QiuSettings.letterSpacing ? parseFloat(QiuSettings.letterSpacing) : 0.0,
+            reduceIcon = document.getElementsByClassName('letter-spacing-reduce')[0].firstElementChild,
+            addIcon = document.getElementsByClassName('letter-spacing-add')[0].firstElementChild;
+
+        if ((target.classList && target.classList.contains('letter-spacing-reduce')) || target === reduceIcon) {
+            value -= 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'px';
+            QiuSettings.setLetterSpacing(value);
+            setStyle();
+        }
+        if ((target.classList && target.classList.contains('letter-spacing-add')) || target === addIcon) {
+            value += 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'px';
+            QiuSettings.setLetterSpacing(value);
+            setStyle();
+        }
+    });
+
+// 调整 word-spacing
+document.getElementsByClassName('word-spacing-box')[0]
+    .addEventListener('click', function (e) {
+        var target = e.target,
+            value = QiuSettings.wordSpacing ? parseFloat(QiuSettings.wordSpacing) : 0.0,
+            reduceIcon = document.getElementsByClassName('word-spacing-reduce')[0].firstElementChild,
+            addIcon = document.getElementsByClassName('word-spacing-add')[0].firstElementChild;
+
+        if ((target.classList && target.classList.contains('word-spacing-reduce')) || target === reduceIcon) {
+            value -= 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'px';
+            QiuSettings.setWordSpacing(value);
+            setStyle();
+        }
+        if ((target.classList && target.classList.contains('word-spacing-add')) || target === addIcon) {
+            value += 0.1;
+            value = parseFloat(value.toFixed(1));
+            value += 'px';
+            QiuSettings.setWordSpacing(value);
+            setStyle();
+        }
+    });
+
+// 重置样式
+document.getElementById('restore-style')
+    .addEventListener('click', function () {
+        QiuSettings.resetStyle();
+        localStorage.setItem('stylesheet', '');
+        setStyle();
+    });
+
+// 从 setting 读取样式并设置
+function setStyle() {
+    var fontSize = document.getElementsByClassName('font-size')[0];
+    var lineHeight = document.getElementsByClassName('line-height')[0];
+    var letterSpacing = document.getElementsByClassName('letter-spacing')[0];
+    var wordSpacing = document.getElementsByClassName('word-spacing')[0];
+    var userStyleText = localStorage.getItem('stylesheet');
+    var iframe, style, userStyle;
+
+    if (QiuSettings.pageMode) {
         iframe = document.getElementsByClassName('page')[0].firstElementChild.firstElementChild;
-    else
+    } else {
         iframe = document.getElementsByClassName('page')[1].firstElementChild;
+    }
+    if (iframe.contentDocument.getElementById('style-setting')) {
+        style = iframe.contentDocument.getElementById('style-setting');
+    } else {
+        style = iframe.contentDocument.createElement('style');
+        style.id = 'style-setting';
+        iframe.contentDocument.head.appendChild(style);
+    }
+    if (iframe.contentDocument.getElementById('user-style')) {
+        userStyle = iframe.contentDocument.getElementById('user-style');
+    } else {
+        userStyle = iframe.contentDocument.createElement('style');
+        userStyle.id = 'user-style';
+        iframe.contentDocument.head.appendChild(userStyle);
+    }
+    userStyle.innerHTML = userStyleText;
 
-    iframe.contentDocument.getElementsByTagName('body')[0].style.fontSize = size;
-    tip.innerHTML = size;
+    var cssText = [
+        'a, article, cite, code, div, li, p, pre, span, table {',
+        '    font-size: {value} !important;',
+        '    line-height: {value} !important;',
+        '    letter-spacing: {value} !important;',
+        '    word-spacing: {value} !important;',
+        '}',
+        'img {',
+        '    max-width: 100% !important;',
+        '}'
+    ];
+
+    cssText[1] = QiuSettings.fontSize ? cssText[1].replace('{value}', QiuSettings.fontSize) : '';
+    cssText[2] = QiuSettings.lineHeight ? cssText[2].replace('{value}', QiuSettings.lineHeight) : '';
+    cssText[3] = QiuSettings.letterSpacing ? cssText[3].replace('{value}', QiuSettings.letterSpacing) : '';
+    cssText[4] = QiuSettings.wordSpacing ? cssText[4].replace('{value}', QiuSettings.wordSpacing) : '';
+    style.innerHTML = cssText.join('\n');
+    fontSize.textContent = QiuSettings.fontSize ? QiuSettings.fontSize : 'default';
+    lineHeight.textContent = QiuSettings.lineHeight ? QiuSettings.lineHeight : 'default';
+    letterSpacing.textContent = QiuSettings.letterSpacing ? QiuSettings.letterSpacing : 'default';
+    wordSpacing.textContent = QiuSettings.wordSpacing ? QiuSettings.wordSpacing : 'default';
 }
+
+// 用户自定义样式表
+document.getElementById('import-stylesheet')
+    .addEventListener('change', function (e) {
+        var files = e.target.files;
+        var reader = new FileReader();
+        var type = 'text';
+
+        if (files[0].type.indexOf(type) === -1) {
+            alert('Invalid file');
+            return;
+        }
+        reader.readAsText(files[0]);
+        files.length = 0;
+        console.trace(files);
+
+        reader.onerror = function () {
+            alert('There is a error. Please try again. Error code: ' + reader.error.code + '.');
+        };
+
+        reader.onload = function () {
+            alert('The stylesheet has been imported.');
+            localStorage.setItem('stylesheet', reader.result);
+            setStyle();
+        };
+    });
 
 // 锚点定位
 function pageYScrollTo(targetId) {

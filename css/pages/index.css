@@ -14,7 +14,15 @@ html, body {
 
 main {
     position: relative;
-    height: calc(100% - 60px);
+    padding-top: 60px;
+}
+
+.fixed-navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 100;
 }
 
 .welcome {
