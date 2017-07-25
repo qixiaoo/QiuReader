@@ -30,7 +30,7 @@ document.getElementById('add-book')
                 });
 
                 book.getMetadata().then(function (metadata) {
-                    var key = metadata.identifier,
+                    var key = new Date().getTime() + '',
                         name = metadata.bookTitle,
                         author = metadata.creator,
                         article = new Book(key, name, author, e.target.result);
@@ -209,7 +209,11 @@ function init() {
         bookDB.getBooks(
             function (books) {
                 welcome.visible = books.length === 0;
-
+                books.sort(function (a, b) {
+                    var keyA = parseInt(a.key),
+                        keyB = parseInt(b.key);
+                    return (keyA - keyB);
+                });
                 books.forEach(function (book) {
                     addBookToPage(book);
                 });

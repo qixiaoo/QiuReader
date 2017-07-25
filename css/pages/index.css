@@ -15,6 +15,7 @@ html, body {
 main {
     position: relative;
     padding-top: 60px;
+    height: 100%;
 }
 
 .fixed-navbar {
