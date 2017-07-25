@@ -12,6 +12,10 @@
     transition: .3s;
 }
 
+[class*='btn-'].small {
+    min-width: initial;
+}
+
 .btn-flat {
     color: white;
 }
