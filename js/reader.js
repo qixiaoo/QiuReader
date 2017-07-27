@@ -850,7 +850,6 @@ document.getElementById('import-stylesheet')
         }
         reader.readAsText(files[0]);
         files.length = 0;
-        console.trace(files);
 
         reader.onerror = function () {
             alert('There is a error. Please try again. Error code: ' + reader.error.code + '.');
