@@ -12,28 +12,14 @@
 
 [class*=hl-] {
     color: #000 !important;
-    position: relative;
 }
 
 [class*=hl-]::before {
     content: '🍇';
-    display: inline-block;
-    position: absolute;
-    left: -2em;
-    transform: translateY(-40%);
 }
 
-[class*=hl-]:hover::before {
-    animation: float .6s infinite linear alternate;
-}
-
-@keyframes float {
-    from {
-        transform: translateY(-40%);
-    }
-    to {
-        transform: translateY(-60%);
-    }
+[class*=hl-]:hover {
+    background-image: linear-gradient(0, rgba(0,0,0,.075), rgba(0,0,0,.075));
 }
 
 .hl-red {

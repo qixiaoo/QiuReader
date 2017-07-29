@@ -75,8 +75,10 @@ function init() {
                         bookMarkFlag = true;
                         anchorFlag = true;
                     }
-                    var link = createLink('/QiuReader/css/epub/common.css');
-                    var script = createScript('/QiuReader/js/epub/selection.js');
+                    var indexNum = window.location.href.lastIndexOf('/');
+                    var pageUri = window.location.href.substring(0, indexNum);
+                    var link = createLink(pageUri + '/css/epub/common.css');
+                    var script = createScript(pageUri + '/js/epub/selection.js');
                     var iframe = document.getElementsByTagName('iframe')[0];
                     iframe.contentDocument.head.appendChild(link);
                     iframe.contentDocument.body.appendChild(script);
@@ -241,6 +243,7 @@ document.getElementsByClassName('toc-button')[0]
 
 // 翻页快捷键的事件处理程序
 EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, renderer) {
+    var isFirefox = navigator.userAgent.indexOf('Firefox') !== -1;
     var lock = false;
     var arrowKeys = function (e) {
         e.preventDefault();
@@ -287,8 +290,31 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
             return false;
         }
     };
+    var mouseFirefox = function (e) {
+        e.preventDefault();
+        if (lock) return;
+
+        if (e.detail < 0) {
+            book.prevPage();
+            lock = true;
+            setTimeout(function () {
+                lock = false;
+            }, 100);
+            return false;
+        }
+
+        if (e.detail > 0) {
+            book.nextPage();
+            lock = true;
+            setTimeout(function () {
+                lock = false;
+            }, 100);
+            return false;
+        }
+    };
     renderer.doc.addEventListener('keydown', arrowKeys, false);
-    renderer.doc.addEventListener('mousewheel', mouse, false);
+    if (isFirefox) renderer.doc.addEventListener('DOMMouseScroll', mouseFirefox, false);
+    else renderer.doc.addEventListener('mousewheel', mouse, false);
     if (callback) callback();
 };
 
@@ -647,7 +673,9 @@ function setVerticalMode() {
         pageFull = document.getElementsByClassName('page')[1],
         iframe = document.getElementById('full-page-iframe'),
         link,
-        script;
+        script,
+        indexNum = window.location.href.lastIndexOf('/'),
+        pageUri = window.location.href.substring(0, indexNum);
 
     pageSingle.classList.add('hide');
     pageFull.classList.add('hide');
@@ -655,9 +683,9 @@ function setVerticalMode() {
     iframe.contentDocument.body.innerHTML = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].innerHTML;
     var style = book.renderer.render.getDocumentElement().getElementsByTagName('body')[0].style.cssText;
     iframe.contentDocument.body.setAttribute('style', style);
-    link = createLink('/QiuReader/css/epub/single-page.css');
+    link = createLink(pageUri + '/css/epub/single-page.css');
     iframe.contentDocument.head.appendChild(link);
-    link = createLink('/QiuReader/css/epub/common.css');
+    link = createLink(pageUri + '/css/epub/common.css');
     iframe.contentDocument.head.appendChild(link);
     pageFull.classList.remove('hide');
 
@@ -667,9 +695,9 @@ function setVerticalMode() {
     setYScroll(0);
 
     // 为页面添加动态脚本
-    script = createScript('/QiuReader/js/epub/locate.js');
+    script = createScript(pageUri + '/js/epub/locate.js');
     iframe.contentDocument.body.appendChild(script);
-    script = createScript('/QiuReader/js/epub/selection.js');
+    script = createScript(pageUri + '/js/epub/selection.js');
     iframe.contentDocument.body.appendChild(script);
 
     // 监听进度变化，记录进度信息

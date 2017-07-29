@@ -1,11 +1,11 @@
 # QiuReader
-QiuReader 是一个仅在 chrome 浏览器下可用的简单的 epub 阅读器，由 [epub.js](https://github.com/futurepress/epub.js) 驱动。
+QiuReader 是一个仅在 Chrome 和 Firefox 下可用的简单的 epub 阅读器，由 [epub.js](https://github.com/futurepress/epub.js) 、 [Rangy](https://github.com/timdown/rangy) 驱动。
 
 
 
 ## 介绍
 
-**Warning**：这是一个学习前端的练手项目，完全使用原生 js 实现。限于姿势水平，在使用过程中可能会出现不可避免的崩坏、失控、闪瞎眼等情况，欢迎用问题来鞭挞我 ᕕ( ᐛ )ᕗ 。
+**Warning**：这是一个学习前端的练手项目，限于作者姿势水平，在使用过程中可能会出现不可避免的崩坏、失控、闪瞎眼等情况，欢迎用问题来鞭挞我 ᕕ( ᐛ )ᕗ 。
 
 
 
