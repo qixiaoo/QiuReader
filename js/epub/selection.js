@@ -31,3 +31,12 @@ function selected(e) {
 
     menu.style.visibility = 'visible';
 }
+
+// 解决复制粘贴问题的 hack
+document.addEventListener('keydown', function (e) {
+    var key = e.keyCode || e.which;
+    if (key === 67 && e.ctrlKey)
+    {
+        document.execCommand('copy', false, null);
+    }
+});
