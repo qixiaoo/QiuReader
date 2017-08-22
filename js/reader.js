@@ -1,6 +1,7 @@
 var book = null; // 书籍
 var bookMarkFlag = false; // 标记：是否可以开始书签跳转了
 var anchorFlag = false; // 标记：是否可以开始判断锚点位置以定位
+var copyText = ''; // 复制的文本内容
 
 var tocSide = {
     isVisible: false
@@ -479,13 +480,13 @@ document.getElementById('setting')
 
 // 进入全屏模式
 function launchFullscreen(element) {
-    if(element.requestFullscreen) {
+    if (element.requestFullscreen) {
         element.requestFullscreen();
-    } else if(element.mozRequestFullScreen) {
+    } else if (element.mozRequestFullScreen) {
         element.mozRequestFullScreen();
-    } else if(element.webkitRequestFullscreen) {
+    } else if (element.webkitRequestFullscreen) {
         element.webkitRequestFullscreen();
-    } else if(element.msRequestFullscreen) {
+    } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
     }
 }
@@ -977,7 +978,7 @@ document.getElementById('select-menu')
             QiuPen.save(book);
         }
         if (target.className.indexOf('copy-text') !== -1) {
-            result = iframe.contentDocument.execCommand('copy', false);
+            result = iframe.contentWindow.document.execCommand('copy', false, null);
             !result ? console.log('failed to copy text to clipboard') : '';
         }
         if (target.className.indexOf('translate-text') !== -1) {
@@ -987,6 +988,26 @@ document.getElementById('select-menu')
 
         menu.style.visibility = 'hidden';
     });
+
+// 解决复制粘贴问题的 hack
+document.addEventListener('keydown', function (e) {
+    var key = e.keyCode || e.which;
+    if (key === 67 && e.ctrlKey)
+    {
+        document.execCommand('copy', false, null);
+    }
+});
+
+// 解决复制粘贴问题的 hack
+document.addEventListener('copy', function (e) {
+    var iframe;
+    if (QiuSettings.pageMode) iframe = document.getElementsByTagName('iframe')[0];
+    else iframe = document.getElementsByTagName('iframe')[1];
+
+    copyText = iframe.contentDocument.getSelection().toString() || document.getSelection().toString();
+    e.clipboardData.setData('text/plain', copyText);
+    e.preventDefault(); // We want our data, not data from any selection, to be written to the clipboard
+});
 
 window.onload = function () {
     init();
