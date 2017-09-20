@@ -47,6 +47,7 @@ function init() {
                 // 设置背景色
                 document.getElementsByTagName('body')[0].style.backgroundColor = localStorage.getItem('bg-color') ? localStorage.getItem('bg-color') : '';
 
+                // 根据设置确定按钮内容
                 document.getElementById('toggle-popup').textContent = QiuSettings.popup ? 'enabled' : 'disabled';
 
                 // 渲染
@@ -64,7 +65,6 @@ function init() {
                 // 用户自定义设置
                 book.on('renderer:chapterDisplayed', function () {
                     if (initializing) {
-                        QiuSettings.init();
                         tocSide.visible = QiuSettings.sideToc;
                         QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
                         setStyle();
@@ -1020,6 +1020,8 @@ document.addEventListener('copy', function (e) {
 });
 
 window.onload = function () {
+    QiuSettings.init();
+
     init();
 
     new QiuDrag('tool-bar');
