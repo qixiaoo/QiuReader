@@ -1,7 +1,7 @@
 // 监听选中文本
 document.addEventListener('mouseup', function (e) {
     var sel = window.getSelection();
-    if (!sel.isCollapsed) selected(e);
+    if (!sel.isCollapsed && window.parent.QiuSettings.popup) selected(e);
     else window.parent.document.getElementById('select-menu').style.visibility = 'hidden';
 });
 

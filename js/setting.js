@@ -17,6 +17,7 @@
             QiuSettings.lineHeight = o.lineHeight;
             QiuSettings.letterSpacing = o.letterSpacing;
             QiuSettings.wordSpacing = o.wordSpacing;
+            QiuSettings.popup = o.popup;
         }
         else {
             QiuSettings.pageMode = true;
@@ -25,6 +26,7 @@
             QiuSettings.lineHeight = '';
             QiuSettings.letterSpacing = '';
             QiuSettings.wordSpacing = '';
+            QiuSettings.popup = true;
             localStorage.setItem('settings', JSON.stringify(QiuSettings));
         }
     };
@@ -56,6 +58,11 @@
 
     QiuSettings.setWordSpacing = function (wordSpacing) {
         QiuSettings.wordSpacing = wordSpacing;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setPopup = function (popup) {
+        QiuSettings.popup = popup;
         localStorage.setItem('settings', JSON.stringify(QiuSettings));
     };
 
