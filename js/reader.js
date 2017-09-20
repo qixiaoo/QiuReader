@@ -47,6 +47,8 @@ function init() {
                 // 设置背景色
                 document.getElementsByTagName('body')[0].style.backgroundColor = localStorage.getItem('bg-color') ? localStorage.getItem('bg-color') : '';
 
+                document.getElementById('toggle-popup').textContent = QiuSettings.popup ? 'enabled' : 'disabled';
+
                 // 渲染
                 book.renderTo(page);
 
@@ -811,6 +813,14 @@ document.getElementById('restore-style')
         QiuSettings.resetStyle();
         localStorage.setItem('stylesheet', '');
         setStyle();
+    });
+
+// 对是否显示 popup 的设置
+document.getElementById('toggle-popup')
+    .addEventListener('click', function () {
+        QiuSettings.setPopup(!QiuSettings.popup);
+        var button = document.getElementById('toggle-popup');
+        button.textContent = QiuSettings.popup ? 'enabled' : 'disabled';
     });
 
 // 从 setting 读取样式并设置
