@@ -18,6 +18,10 @@
             QiuSettings.letterSpacing = o.letterSpacing;
             QiuSettings.wordSpacing = o.wordSpacing;
             QiuSettings.popup = o.popup;
+            QiuSettings.hLRMargin = o.hLRMargin || '80px'; // horizontal 模式下的左右边距
+            QiuSettings.hTBMargin = o.hTBMargin || '60px'; // horizontal 模式下的上下边距
+            QiuSettings.vWidth = o.vWidth || '700px'; // vertical 模式下的页面宽度
+            QiuSettings.forceSingle = !!o.forceSingle; // 是否启用强制单页
         }
         else {
             QiuSettings.pageMode = true;
@@ -27,6 +31,10 @@
             QiuSettings.letterSpacing = '';
             QiuSettings.wordSpacing = '';
             QiuSettings.popup = true;
+            QiuSettings.hLRMargin = '80px';
+            QiuSettings.hTBMargin = '60px';
+            QiuSettings.vWidth = '700px';
+            QiuSettings.forceSingle = false;
             localStorage.setItem('settings', JSON.stringify(QiuSettings));
         }
     };
@@ -66,11 +74,34 @@
         localStorage.setItem('settings', JSON.stringify(QiuSettings));
     };
 
+    QiuSettings.setHLRMargin = function (margin) {
+        QiuSettings.hLRMargin = margin;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setHTBMargin = function (margin) {
+        QiuSettings.hTBMargin = margin;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setVWidth = function (margin) {
+        QiuSettings.vWidth = margin;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
+    QiuSettings.setForceSingle = function (forceSingle) {
+        QiuSettings.forceSingle = forceSingle;
+        localStorage.setItem('settings', JSON.stringify(QiuSettings));
+    };
+
     QiuSettings.resetStyle = function () {
         QiuSettings.fontSize = '';
         QiuSettings.lineHeight = '';
         QiuSettings.letterSpacing = '';
         QiuSettings.wordSpacing = '';
+        QiuSettings.hLRMargin = '80px';
+        QiuSettings.hTBMargin = '60px';
+        QiuSettings.vWidth = '700px';
         localStorage.setItem('settings', JSON.stringify(QiuSettings));
     };
     

@@ -10,12 +10,26 @@ var tocSide = {
 Object.defineProperty(tocSide, 'visible', {
     set: function (val) {
         this.isVisible = val;
-        var tocSide = document.getElementsByClassName('toc-side')[0];
-        var tocBtn = document.getElementsByClassName('toc-button')[0];
-        !val ? tocSide.classList.add('off') : tocSide.classList.remove('off');
-        !val ? tocBtn.classList.remove('on') : tocBtn.classList.add('on');
+        var main = document.getElementsByTagName('main')[0];
+        val ? main.classList.add('toc-on') : main.classList.remove('toc-on');
     }
 });
+
+function getStyle(element, property) {
+    return getComputedStyle(element, null).getPropertyValue(property);
+}
+
+function $(selector) {
+    return document.querySelectorAll(selector);
+}
+
+function $$(selector) {
+    return document.querySelector(selector);
+}
+
+function nodeListToArray(nodes) {
+    return Array.prototype.slice.call(nodes, 0);
+}
 
 // 进入页面后的一系列初始化操作
 function init() {
@@ -45,15 +59,27 @@ function init() {
                 book.setStyle('background-color', 'transparent'); // 背景透明
 
                 // 设置背景色
-                document.getElementsByTagName('body')[0].style.backgroundColor = localStorage.getItem('bg-color') ? localStorage.getItem('bg-color') : '';
+                var bgColor = localStorage.getItem('bg-color');
+                bgColor && setColor(bgColor, 'background');
+
+                // 设置字体色
+                var fontColor = localStorage.getItem('font-color');
+                fontColor && setColor(fontColor, 'font');
+
+                // 设置高亮色
+                var hlColor = localStorage.getItem('hl-color');
+                hlColor && setColor(hlColor, 'highlight');
 
                 // 根据设置确定按钮内容
                 document.getElementById('toggle-popup').textContent = QiuSettings.popup ? 'enabled' : 'disabled';
 
+                // 设置单页或者双页
+                book.renderer.forceSingle(QiuSettings.forceSingle);
+
                 // 渲染
                 book.renderTo(page);
 
-                var initializing = true; // todo 更好的方式？
+                var initializing = true; // TODO 更好的方式？
                 var pos;
 
                 // 跳转到上一次阅读点
@@ -62,22 +88,31 @@ function init() {
                     book.gotoCfi(pos.cfi);
                 }
 
+                // 设置边距
+                setMargins();
+
                 // 用户自定义设置
                 book.on('renderer:chapterDisplayed', function () {
                     if (initializing) {
                         tocSide.visible = QiuSettings.sideToc;
-                        QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                        QiuSettings.pageMode ? setHorizontalMode(QiuSettings.forceSingle) : setVerticalMode();
                         setStyle();
                         if (!QiuSettings.pageMode && currentLocation.getCurrentLocation() && currentLocation.getCurrentLocation().posY) {
                             setYScroll(currentLocation.getCurrentLocation().posY);
                         }
                         initializing = false;
                     } else {
-                        QiuSettings.pageMode ? setHorizontalMode() : setVerticalMode();
+                        QiuSettings.pageMode ? setHorizontalMode(QiuSettings.forceSingle) : setVerticalMode();
                         setStyle();
                         bookMarkFlag = true;
                         anchorFlag = true;
                     }
+
+                    setTimeout(function () {
+                        // 在tocSide.visible已经设置为用户定义的状态之后再允许动画效果，避免出现toc栏闪动动画
+                        document.getElementsByTagName('main')[0].classList.add('with-animation');
+                    }, 500);
+
                     var indexNum = window.location.href.lastIndexOf('/');
                     var pageUri = window.location.href.substring(0, indexNum);
                     var link = createLink(pageUri + '/css/epub/common.css');
@@ -238,9 +273,7 @@ function setCollapseStyle() {
 // toc-button 的事件处理程序
 document.getElementsByClassName('toc-button')[0]
     .addEventListener('click', function (e) {
-        var self = this;
-        self.classList.contains('on') ? this.classList.remove('on') : this.classList.add('on');
-        tocSide.visible = self.classList.contains('on');
+        tocSide.visible = !document.getElementsByTagName('main')[0].classList.contains('toc-on');
         QiuSettings.setSideToc(tocSide.isVisible);
     });
 
@@ -319,24 +352,6 @@ EPUBJS.Hooks.register("beforeChapterDisplay").pageTurns = function (callback, re
     if (isFirefox) renderer.doc.addEventListener('DOMMouseScroll', mouseFirefox, false);
     else renderer.doc.addEventListener('mousewheel', mouse, false);
     if (callback) callback();
-};
-
-// 添加翻页动画
-EPUBJS.Hooks.register('beforeChapterDisplay').pageAnimation = function (callback, renderer) {
-    window.setTimeout(function () {
-        var style = renderer.doc.createElement("style");
-        style.innerHTML = "*{-webkit-transition: transform {t} ease;-moz-transition: tranform {t} ease;-o-transition: transform {t} ease;-ms-transition: transform {t} ease;transition: transform {t} ease;}";
-        style.innerHTML = style.innerHTML.split("{t}").join("0.5s");
-        renderer.doc.body.appendChild(style);
-    }, 100);
-    if (callback) {
-        callback();
-    }
-};
-
-// 添加此段代码使支持翻页动画
-EPUBJS.Render.Iframe.prototype.setLeft = function (leftPos) {
-    this.docEl.style[this.transform] = 'translate(' + (-leftPos) + 'px, 0)';
 };
 
 // 翻页按钮
@@ -450,29 +465,66 @@ document.getElementById('book-mark-list')
 document.getElementById('color-panel')
     .addEventListener('click', function (e) {
         var target = e.target,
+            parent,
+            element,
             lis,
-            ul,
-            color,
-            i;
+            colors,
+            color;
 
         if (target.classList.contains('color-item')) {
-            lis = target.parentNode.childNodes;
-            for (i = 0; i < lis.length; i++)
-                lis[i].nodeType === 1 ? lis[i].classList.remove('selected') : '';
+            lis = $('.color-item');
+            lis.forEach(function (value) {
+                value.classList.remove('selected');
+            });
             target.classList.add('selected');
         }
 
         if (target.classList.contains('color-save')) {
-            ul = document.getElementsByClassName('color-list')[0];
-            for (i = 0; i < ul.childNodes.length; i++)
-                if (ul.childNodes[i].nodeType === 1 && ul.childNodes[i].classList.contains('selected')) {
-                    color = document.defaultView.getComputedStyle(ul.childNodes[i], null).backgroundColor;
-                    document.getElementsByTagName('body')[0].style.backgroundColor = color;
-                    ul.childNodes[i].classList.remove('selected');
-                    localStorage.setItem('bg-color', color);
-                }
+            element = $$('.color-item.selected');
+            if (!element) return;
+            parent = element.parentNode;
+            color = getStyle(element, 'background-color');
+            if (parent.classList.contains('background'))
+                setColor(color, 'background');
+            if (parent.classList.contains('font'))
+                setColor(color, 'font');
+            if (parent.classList.contains('highlight')) {
+                colors = nodeListToArray($('.highlight .color-item'));
+                colors.forEach(function (color, i, arr) {
+                    arr[i] = getStyle(color, 'background-color');
+                });
+                setColor(colors.join('$'), 'highlight');
+            }
+            setStyle();
         }
     });
+
+function onColorChange(color) {
+    var colorBox = $('.color-item.custom-color-item.selected')[0];
+    if (colorBox) colorBox.style.backgroundColor = color;
+}
+
+function setColor(color, type) {
+    if (type === 'background') {
+        $$('body').style.backgroundColor = color;
+        $$('.color-list.background .color-item.custom-color-item').style.backgroundColor = color;
+        localStorage.setItem('bg-color', color);
+    }
+    if (type === 'font') {
+        $$('.color-list.font .color-item.custom-color-item').style.backgroundColor = color;
+        localStorage.setItem('font-color', color);
+    }
+    if (type === 'highlight') {
+        var colors = color.split('$');
+        var highlights = nodeListToArray($('.select-menu .ann-color'));
+        var hlColorItems = nodeListToArray($('.highlight .color-item'));
+        highlights.forEach(function (hl, i) {
+            hl.style.backgroundColor = colors[i];
+            hlColorItems[i].style.backgroundColor = colors[i];
+        });
+        localStorage.setItem('hl-color', color);
+    }
+}
 
 // tool-bar 设置按钮的事件处理程序
 document.getElementById('setting')
@@ -646,25 +698,38 @@ document.getElementById('book-mark-modal')
 
 /* 设置面板相关部分 */
 
-// 设置为水平翻页
+// 设置为水平翻页——单页模式
 document.getElementById('horizontal')
-    .addEventListener('click', setHorizontalMode);
+    .addEventListener('click', function (ev) {
+        setHorizontalMode(true);
+        window.location.reload();
+    });
+
+// 设置为水平翻页——双页模式
+document.getElementById('double-page')
+    .addEventListener('click', function (ev) {
+        setHorizontalMode(false);
+        window.location.reload();
+    });
 
 // 设置为垂直滚动翻页
 document.getElementById('vertical')
     .addEventListener('click', setVerticalMode);
 
 // 由垂直滚动切换到水平翻页
-function setHorizontalMode() {
-    var pageSingle = document.getElementsByClassName('page')[0],
-        pageFull = document.getElementsByClassName('page')[1],
+function setHorizontalMode(single) {
+    var pageHorizontal = document.getElementsByClassName('page')[0],
+        pageVertical = document.getElementsByClassName('page')[1],
         iframe = document.getElementsByTagName('iframe')[0];
 
-    pageFull.classList.add('hide');
-    pageSingle.classList.remove('hide');
+    pageVertical.classList.add('hide');
+    pageHorizontal.classList.remove('hide');
 
     QiuSettings.setPageMode(true);
+    QiuSettings.setForceSingle(single);
+    book.renderer.forceSingle(single);
     setStyle();
+    setMargins();
 
     QiuPen.create(iframe.contentWindow.document);
     QiuPen.load(book);
@@ -694,6 +759,7 @@ function setVerticalMode() {
 
     QiuSettings.setPageMode(false);
     setStyle();
+    setMargins();
 
     setYScroll(0);
 
@@ -813,6 +879,7 @@ document.getElementById('restore-style')
         QiuSettings.resetStyle();
         localStorage.setItem('stylesheet', '');
         setStyle();
+        setMargins();
     });
 
 // 对是否显示 popup 的设置
@@ -822,6 +889,76 @@ document.getElementById('toggle-popup')
         var button = document.getElementById('toggle-popup');
         button.textContent = QiuSettings.popup ? 'enabled' : 'disabled';
     });
+
+// 调整页面左右边距
+function modifyLRMargins(increase) {
+    var pages = document.getElementsByClassName('page');
+    if (QiuSettings.pageMode) {
+        var left = parseInt(getStyle(pages[0], 'left'));
+        if (!increase) left = left > 80 ? left - 10 : left;
+        else left += 10;
+        pages[0].style.right = pages[0].style.left = left + 'px';
+        QiuSettings.setHLRMargin(left + 'px');
+    } else {
+        var html = pages[1].getElementsByTagName('iframe')[0]
+            .contentDocument
+            .getElementsByTagName('html')[0];
+        var width = parseInt(getStyle(html, 'width'));
+        if (!increase) width = width < screen.availWidth ? width + 10 : width;
+        else width = width > 500 ? width - 10 : width;
+        html.style.width = width + 'px';
+        QiuSettings.setVWidth(width + 'px');
+    }
+}
+
+document.getElementById('reduce-lr-margin')
+    .addEventListener('click', function (ev) {
+        modifyLRMargins(false);
+    });
+
+document.getElementById('add-lr-margin')
+    .addEventListener('click', function (ev) {
+        modifyLRMargins(true);
+    });
+
+// 调整页面上下边距
+function modifyTBMargins(increase) {
+    if (QiuSettings.pageMode) {
+        var page = document.getElementsByClassName('page')[0];
+        var top = parseInt(getStyle(page, 'top'));
+        if (!increase) top = top >= 10 ? top - 10 : top;
+        else top += 10;
+        page.style.top = page.style.bottom = top + 'px';
+        QiuSettings.setHTBMargin(top + 'px');
+    } else {
+        alert('Not allowed to adjust the top and bottom margins in scroll mode.')
+    }
+}
+
+document.getElementById('reduce-tb-margin')
+    .addEventListener('click', function (ev) {
+        modifyTBMargins(false);
+    });
+
+document.getElementById('add-tb-margin')
+    .addEventListener('click', function (ev) {
+        modifyTBMargins(true);
+    });
+
+// 读取设置的边距配置信息来调整文档边距
+function setMargins() {
+    var pages = document.getElementsByClassName('page');
+    if (QiuSettings.pageMode) {
+        var page = pages[0];
+        page.style.left = page.style.right = QiuSettings.hLRMargin;
+        page.style.top = page.style.bottom = QiuSettings.hTBMargin;
+    } else {
+        var html = pages[1].getElementsByTagName('iframe')[0]
+            .contentDocument
+            .getElementsByTagName('html')[0];
+        html.style.width = QiuSettings.vWidth;
+    }
+}
 
 // 从 setting 读取样式并设置
 function setStyle() {
@@ -854,11 +991,12 @@ function setStyle() {
     userStyle.innerHTML = userStyleText;
 
     var cssText = [
-        'a, article, cite, code, div, li, p, pre, span, table {',
+        'h1, h2, h3, h4, h5, h6, a, article, cite, code, div, li, p, pre, span, table {',
         '    font-size: {value} !important;',
         '    line-height: {value} !important;',
         '    letter-spacing: {value} !important;',
         '    word-spacing: {value} !important;',
+        '    color: {value} !important;',
         '}',
         'img {',
         '    max-width: 100% !important;',
@@ -869,6 +1007,21 @@ function setStyle() {
     cssText[2] = QiuSettings.lineHeight ? cssText[2].replace('{value}', QiuSettings.lineHeight) : '';
     cssText[3] = QiuSettings.letterSpacing ? cssText[3].replace('{value}', QiuSettings.letterSpacing) : '';
     cssText[4] = QiuSettings.wordSpacing ? cssText[4].replace('{value}', QiuSettings.wordSpacing) : '';
+    cssText[5] = localStorage.getItem('font-color') ? cssText[5].replace('{value}', localStorage.getItem('font-color')) : '';
+
+    // 从设置面板来更换高亮颜色
+    var colors, classes, rule, stylesheet = '';
+    colors = localStorage.getItem('hl-color');
+    if (colors) {
+        colors = colors && colors.split('$');
+        classes = ['.hl-red', '.hl-yellow', '.hl-green', '.hl-blue', '.hl-orange'];
+        colors.forEach(function (color, i) {
+            rule = classes[i] + ' {\n\tbackground-color: ' + color + " !important;\n}\n";
+            stylesheet += rule;
+        });
+        cssText[10] = stylesheet;
+    }
+
     style.innerHTML = cssText.join('\n');
     fontSize.textContent = QiuSettings.fontSize ? QiuSettings.fontSize : 'default';
     lineHeight.textContent = QiuSettings.lineHeight ? QiuSettings.lineHeight : 'default';
@@ -974,15 +1127,6 @@ document.getElementById('select-menu')
                 }
             });
         }
-        if (target.className.indexOf('ann-underline') !== -1) {
-            classArr = target.className.split(' ');
-            classArr.forEach(function (item) {
-                if (item.indexOf('line-') !== -1) {
-                    QiuPen.highlighter.highlightSelection(item);
-                    QiuPen.save(book);
-                }
-            });
-        }
         if (target.className.indexOf('delete-hl') !== -1) {
             QiuPen.highlighter.unhighlightSelection();
             QiuPen.save(book);
@@ -993,7 +1137,7 @@ document.getElementById('select-menu')
         }
         if (target.className.indexOf('translate-text') !== -1) {
             result = iframe.contentDocument.getSelection().toString();
-            // TODO feature in next version
+            // TODO
         }
 
         menu.style.visibility = 'hidden';
@@ -1002,8 +1146,7 @@ document.getElementById('select-menu')
 // 解决复制粘贴问题的 hack
 document.addEventListener('keydown', function (e) {
     var key = e.keyCode || e.which;
-    if (key === 67 && e.ctrlKey)
-    {
+    if (key === 67 && e.ctrlKey) {
         document.execCommand('copy', false, null);
     }
 });
@@ -1025,6 +1168,8 @@ window.onload = function () {
     init();
 
     new QiuDrag('tool-bar');
+
+    new QiuColorPicker('color-picker', onColorChange);
 
     // 触发 tool-bar 隐藏效果
     var evt = document.createEvent('MouseEvents');

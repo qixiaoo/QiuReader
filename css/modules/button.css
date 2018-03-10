@@ -45,3 +45,40 @@
 .btn-tip:hover {
     background-color: rgba(0, 0, 0, .2);
 }
+
+/* 滑动开关 */
+
+.slidebar {
+    position: relative;
+    display: block;
+    background-color: #828282;
+    height: 15px;
+    width: 40px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.slidebar:after {
+    content: '';
+    position: absolute;
+    display: inline-block;
+    top: 50%;
+    left: -3px;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+    transform: translateY(-50%);
+    transition: .3s;
+}
+
+.slidebar.on {
+    background-color: #F5C28A;
+}
+
+.slidebar.on:after {
+    left: 22px;
+    background-color: #F5AD8A;
+}

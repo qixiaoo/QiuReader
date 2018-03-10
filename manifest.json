@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+    "name": "QiuReader",
+    "version": "0.1.4",
+    "description": "a simple epub reader",
+    "icons": {
+        "128": "img/Qiu.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "30": "img/Qiu.png"
+        },
+        "default_title": "QiuReader"
+    },
+    "background": {
+        "scripts": ["js/background.js"]
+    },
+    "permissions": [
+        "tabs"
+    ]
+}

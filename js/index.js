@@ -195,12 +195,6 @@ document.getElementsByClassName('save-book-info')[0]
         });
     });
 
-// welcome 面板隐藏按钮的事件处理程序
-document.getElementById('welcome-close')
-    .addEventListener('click', function () {
-        welcome.visible = false;
-    });
-
 // 打开页面时初始化书籍列表
 function init() {
     'use strict';

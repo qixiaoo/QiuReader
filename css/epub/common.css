@@ -11,7 +11,6 @@
 /* annotation highlight */
 
 [class*=hl-] {
-    border-radius: .25em;
     color: #FFF;
 }
 

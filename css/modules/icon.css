@@ -28,6 +28,10 @@
     background-image: url("../../img/horizontal-page.png");
 }
 
+.icon-double-page {
+    background: url("../../img/double-page.svg");
+}
+
 .icon-vertical-page {
     background-image: url("../../img/vertical-page.png");
 }

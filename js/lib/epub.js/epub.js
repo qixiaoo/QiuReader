@@ -8861,35 +8861,74 @@ EPUBJS.Unarchiver.prototype.getXml = function(url, encoding){
 
 };
 
-EPUBJS.Unarchiver.prototype.getUrl = function(url, mime){
-	var unarchiver = this;
-	var deferred = new RSVP.defer();
-	var decodededUrl = window.decodeURIComponent(url);
-	var entry = this.zip.file(decodededUrl);
-	var _URL = window.URL || window.webkitURL || window.mozURL;
-	var tempUrl;
-	var blob;
+// EPUBJS.Unarchiver.prototype.getUrl = function(url, mime){
+// 	var unarchiver = this;
+// 	var deferred = new RSVP.defer();
+// 	var decodededUrl = window.decodeURIComponent(url);
+// 	var entry = this.zip.file(decodededUrl);
+// 	var _URL = window.URL || window.webkitURL || window.mozURL;
+// 	var tempUrl;
+// 	var blob;
+//
+// 	if(!entry) {
+// 		deferred.reject({
+// 			message : "File not found in the epub: " + url,
+// 			stack : new Error().stack
+// 		});
+// 		return deferred.promise;
+// 	}
+//
+// 	if(url in this.urlCache) {
+// 		deferred.resolve(this.urlCache[url]);
+// 		return deferred.promise;
+// 	}
+//
+// 	blob = new Blob([entry.asUint8Array()], {type : EPUBJS.core.getMimeType(entry.name)});
+//
+// 	tempUrl = _URL.createObjectURL(blob);
+// 	deferred.resolve(tempUrl);
+// 	unarchiver.urlCache[url] = tempUrl;
+//
+// 	return deferred.promise;
+// };
 
-	if(!entry) {
-		deferred.reject({
-			message : "File not found in the epub: " + url,
-			stack : new Error().stack
-		});
-		return deferred.promise;
-	}
+// replace function getUrl with this to resolve issue #465
+// issue #465: https://github.com/futurepress/epub.js/issues/465
+// from: https://github.com/gimox
+EPUBJS.Unarchiver.prototype.getUrl = function(url, mime) {
+    var unarchiver = this;
+    var deferred = new RSVP.defer();
+    var decodededUrl = window.decodeURIComponent(url);
+    var entry = this.zip.file(decodededUrl);
+    var _URL = window.URL || window.webkitURL || window.mozURL;
+    var tempUrl;
+    var blob;
 
-	if(url in this.urlCache) {
-		deferred.resolve(this.urlCache[url]);
-		return deferred.promise;
-	}
+    if (!entry) {
+        /*
+        deferred.reject({
+        	message : "File not found in the epub: " + url,
+        	stack : new Error().stack
+        });
+        return deferred.promise;
+        */
+        console.log("File not found in the epub:" + url);
+        deferred.resolve("");
+        return deferred.promise;
+    }
 
-	blob = new Blob([entry.asUint8Array()], {type : EPUBJS.core.getMimeType(entry.name)});
+    if (url in this.urlCache) {
+        deferred.resolve(this.urlCache[url]);
+        return deferred.promise;
+    }
 
-	tempUrl = _URL.createObjectURL(blob);
-	deferred.resolve(tempUrl);
-	unarchiver.urlCache[url] = tempUrl;
+    blob = new Blob([entry.asUint8Array()], { type: EPUBJS.core.getMimeType(entry.name) });
 
-	return deferred.promise;
+    tempUrl = _URL.createObjectURL(blob);
+    deferred.resolve(tempUrl);
+    unarchiver.urlCache[url] = tempUrl;
+
+    return deferred.promise;
 };
 
 EPUBJS.Unarchiver.prototype.getText = function(url, encoding){

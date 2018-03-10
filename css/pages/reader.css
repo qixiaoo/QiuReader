@@ -13,9 +13,10 @@ html, body {
 }
 
 main {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     position: relative;
-    height: 100vh;
-    display: flex;
 }
 
 iframe {
@@ -24,15 +25,22 @@ iframe {
 
 /* toc */
 .toc-side {
-    width: 23%;
+    position: absolute;
+    left: -300px;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
     overflow: auto;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
-    transition: transform .3s, width .3s;
 }
 
-.toc-side.off {
-    transform: translateX(-100%);
-    width: 0;
+.with-animation .toc-side {
+    transition: left .3s;
+}
+
+.toc-on .toc-side {
+    left: 0;
 }
 
 .toc-side::-webkit-scrollbar { /* 滚动条 */
@@ -59,9 +67,11 @@ iframe {
 .toc-head {
     position: relative;
     width: 100%;
-    margin: 10px 0;
+    padding: 20px;
+    margin-bottom: 15px;
     text-align: center;
     font-size: 1.25rem;
+    border-bottom: 1px dashed #000;
 }
 
 .chapter-list {
@@ -161,23 +171,33 @@ iframe {
 
 /* 右侧 */
 .main {
-    flex-grow: 1;
-    width: 77%;
-    display: flex;
-    position: relative;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.with-animation .main {
+    transition: left .3s;
+}
+
+.toc-on .main {
+    left: 300px;
 }
 
 .page {
-    width: 700px; /* 单页，可调的宽度 */
-    /*width: 80%; !* 双页，可调的宽度 *!*/
-    height: 97%;
+    position: absolute;
+    left: 80px;
+    right: 80px;
+    top: 0;
+    bottom: 0;
     margin: auto;
-    align-items: center;
 }
 
 .page.doc {
-    width: 100%;
-    height: 100%;
+    left: 0;
+    right: 0;
 }
 
 .page.hide {
@@ -187,72 +207,50 @@ iframe {
 .prev-page, .next-page {
     position: absolute;
     display: flex;
-    width: 50px;
-    height: 50px;
+    width: 80px;
+    height: 30%;
     font-size: 30px;
     cursor: pointer;
+    opacity: 0;
     transition: .5s;
 }
 
 .prev-page:hover, .next-page:hover {
-    background-color: rgba(180, 180, 180, 0.2)
+    opacity: 1;
 }
 
 .prev-page {
-    left: 25px;
+    left: 0;
     top: 50%;
     background: url("../../img/left-arrow.png") no-repeat center;
     transform: translateY(-50%);
 }
 
 .next-page {
-    right: 25px;
+    right: 0;
     top: 50%;
     background: url("../../img/right-arrow.png") no-repeat center;
     transform: translateY(-50%);
 }
 
-/*slidebar 默认为关闭的样式*/
-
-.slidebar {
-    position: relative;
-    display: block;
-    background-color: #828282;
-    height: 15px;
-    width: 40px;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: .3s;
-}
-
-.slidebar:after {
-    content: '';
-    position: absolute;
-    display: inline-block;
-    top: 50%;
-    left: -3px;
-    width: 21px;
-    height: 21px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
-    transform: translateY(-50%);
-    transition: .3s;
-}
-
-.slidebar.on {
-    background-color: #F5C28A;
-}
-
-.slidebar.on:after {
-    left: 22px;
-    background-color: #F5AD8A;
-}
+/* svg toc-button */
 
 .toc-button {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* 重置 modal 的背景色 */
+.modal {
+    background-color: #e3e3e3;
+}
+
+/* 重置 modal 的关闭按钮 */
+.modal-close {
+    border: 1px solid #444;
 }
 
 /* tool-bar */
@@ -290,16 +288,42 @@ iframe {
 }
 
 /* color-panel */
+#color-panel .modal-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.color-picker canvas {
+    cursor: crosshair;
+}
+
+.color-row {
+    display: flex;
+    margin: 20px;
+}
+
 .color-list {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
+    width: 195px;
+    height: 55px;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.color-list:hover {
+    box-shadow: 0 0.5em 1.5em rgba(0,0,0,.15);
 }
 
 .color-item {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #e0e0e0;
-    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    border: 1px solid transparent;
+    border-radius: 5px;
     transition: .3s;
 }
 
@@ -311,24 +335,44 @@ iframe {
     border-color: #f5c18a;
 }
 
-.color-item:nth-child(1) {
+.background .color-item:nth-child(1) {
     background-color: #f6ebd0;
 }
 
-.color-item:nth-child(2) {
-    background-color: #e7e7e7;
-}
-
-.color-item:nth-child(3) {
+.background .color-item:nth-child(2) {
     background-color: #f1f3f4;
 }
 
-.color-item:nth-child(4) {
+.background .color-item:nth-child(3) {
     background-color: #f7f6f2;
 }
 
-.color-item:nth-child(5) {
-    background-color: #fff;
+.background .color-item:nth-child(4) {
+    background-color: #666;
+}
+
+.background .color-item:nth-child(5) {
+    background-color: #3a4;
+}
+
+.font .color-item:nth-child(1) {
+    background-color: #000;
+}
+
+.font .color-item:nth-child(2) {
+    background-color: #444;
+}
+
+.font .color-item:nth-child(3) {
+    background-color: #d3d3d3;
+}
+
+.font .color-item:nth-child(4) {
+    background-color: #e5e5e5;
+}
+
+.font .color-item:nth-child(5) {
+    background-color: #3a4;
 }
 
 /* setting panel */
@@ -370,10 +414,11 @@ iframe {
 }
 
 .other-control {
-    width: 40%;
+    width: 60%;
     margin: auto;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .page-control i {
@@ -442,7 +487,7 @@ iframe {
     background-color: #c8c8c8;
 }
 
-.stylesheet i , .restore i {
+.stylesheet i, .restore i {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -463,11 +508,21 @@ iframe {
     text-decoration: underline;
 }
 
-.popup {
-    width: 100%;
+.other-row {
+    width: 80%;
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: space-around;
+}
+
+.other-row > span.second-msg {
+    text-align: left;
+    width: 70%;
+}
+
+.other-row > .ctrl-btns {
+    text-align: right;
+    width: 30%;
 }
 
 /* 书签栏 */
@@ -559,7 +614,7 @@ iframe {
 .select-menu {
     position: absolute;
     visibility: hidden;
-    width: 250px;
+    width: 200px;
     padding: 10px 0;
     background-color: #fff;
     box-shadow: 0 3px 12px rgba(0, 0, 0, .14);
@@ -571,6 +626,7 @@ iframe {
 .menu-item {
     padding: 4px 15px;
     cursor: pointer;
+    transition: background-color .3s;
 }
 
 .menu-item:hover {

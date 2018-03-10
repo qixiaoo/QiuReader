@@ -25,7 +25,11 @@
         </div>
     </div>
     <div class="main">
-        <div class="slidebar toc-button"></div>
+        <div class="toc-button">
+            <svg viewBox="0 0 1490 1024" width="16" height="16">
+                <path d="M0 65.163636C0 29.174747 29.084579 0 65.19808 0L1424.256465 0C1460.264401 0 1489.454545 29.247991 1489.454545 65.163636 1489.454545 101.152526 1460.369967 130.327273 1424.256465 130.327273L65.19808 130.327273C29.190144 130.327273 0 101.079282 0 65.163636L0 65.163636ZM0 512C0 476.01111 29.084579 446.836364 65.19808 446.836364L1424.256465 446.836364C1460.264401 446.836364 1489.454545 476.084354 1489.454545 512 1489.454545 547.98889 1460.369967 577.163636 1424.256465 577.163636L65.19808 577.163636C29.190144 577.163636 0 547.915646 0 512L0 512ZM0 958.836364C0 922.847474 29.084579 893.672727 65.19808 893.672727L1424.256465 893.672727C1460.264401 893.672727 1489.454545 922.920718 1489.454545 958.836364 1489.454545 994.825253 1460.369967 1024 1424.256465 1024L65.19808 1024C29.190144 1024 0 994.752009 0 958.836364L0 958.836364Z"></path>
+            </svg>
+        </div>
         <div class="page"></div>
         <div class="page doc hide">
             <iframe width="100%" height="100%" id="full-page-iframe"></iframe>
@@ -95,6 +99,12 @@
                         <input type="radio" id="horizontal" name="page-mode">
                         <label for="horizontal" title="single page">
                             <i class="icon-horizontal-page"></i>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="double-page" name="page-mode">
+                        <label for="double-page" title="double page">
+                            <i class="icon-double-page"></i>
                         </label>
                     </div>
                     <div>
@@ -169,9 +179,33 @@
             </div>
             <div class="tab-panel" id="other">
                 <div class="other-control">
-                    <div class="popup">
+                    <div class="other-row">
                         <span class="second-msg">Popup</span>
-                        <button class="btn-tip small" id="toggle-popup">enabled</button>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small" id="toggle-popup">enabled</button>
+                        </div>
+                    </div>
+                    <div class="left-right-margin other-row">
+                        <span class="second-msg">Left and right margins</span>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small" id="reduce-lr-margin">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <button class="btn-tip small" id="add-lr-margin">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="top-bottom-margin other-row">
+                        <span class="second-msg">Top and bottom margins</span>
+                        <div class="ctrl-btns">
+                            <button class="btn-tip small" id="reduce-tb-margin">
+                                <i class="material-icons">remove</i>
+                            </button>
+                            <button class="btn-tip small" id="add-tb-margin">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -214,13 +248,42 @@
 <div class="modal" id="color-panel">
     <div class="modal-header">Color</div>
     <div class="modal-content">
-        <ul class="color-list">
-            <li class="color-item"></li>
-            <li class="color-item"></li>
-            <li class="color-item"></li>
-            <li class="color-item"></li>
-            <li class="color-item"></li>
-        </ul>
+
+        <div>
+            <!--background color-->
+            <div class="color-row">
+                <ul class="color-list background" title="select background color">
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item custom-color-item" title="pick your color"></li>
+                </ul>
+            </div>
+            <!--font color-->
+            <div class="color-row">
+                <ul class="color-list font" title="select font color">
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item"></li>
+                    <li class="color-item custom-color-item" title="pick your color"></li>
+                </ul>
+            </div>
+            <!--highlight color-->
+            <div class="color-row">
+                <ul class="color-list highlight" title="select highlight color">
+                    <li class="color-item custom-color-item bg-red"></li>
+                    <li class="color-item custom-color-item bg-yellow"></li>
+                    <li class="color-item custom-color-item bg-green"></li>
+                    <li class="color-item custom-color-item bg-blue"></li>
+                    <li class="color-item custom-color-item bg-orange"></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="color-picker" class="color-picker"></div>
+
     </div>
     <div class="modal-footer">
         <button class="btn-tip modal-close color-save" modal-target="color-panel">Save</button>
@@ -232,20 +295,10 @@
 <div class="select-menu" id="select-menu">
     <div class="ann-color-bar" title="add highlight">
         <span class="ann-color hl-red bg-red"></span>
-        <span class="ann-color hl-orange bg-orange"></span>
+        <span class="ann-color hl-orange bg-yellow"></span>
         <span class="ann-color hl-green bg-green"></span>
         <span class="ann-color hl-blue bg-blue"></span>
-        <span class="ann-color hl-yellow bg-yellow"></span>
-        <span class="ann-color hl-purple bg-purple"></span>
-    </div>
-    <div class="divider"></div>
-    <div class="ann-underline-bar" title="add underline">
-        <span class="ann-underline line-red bg-red"></span>
-        <span class="ann-underline line-orange bg-orange"></span>
-        <span class="ann-underline line-green bg-green"></span>
-        <span class="ann-underline line-blue bg-blue"></span>
-        <span class="ann-underline line-yellow bg-yellow"></span>
-        <span class="ann-underline line-purple bg-purple"></span>
+        <span class="ann-color hl-yellow bg-orange"></span>
     </div>
     <div class="divider"></div>
     <div class="menu-item delete-hl" title="delete highlight/underline">Delete</div>
@@ -265,6 +318,7 @@
 <script type="text/javascript" src="js/currentLocation.js"></script>
 <script type="text/javascript" src="js/setting.js"></script>
 <script type="text/javascript" src="js/bookMark.js"></script>
+<script type="text/javascript" src="js/colorpicker.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>
 </body>
 </html>
