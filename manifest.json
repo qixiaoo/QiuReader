@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "QiuReader",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "a simple epub reader",
     "icons": {
         "128": "img/Qiu.png"
