@@ -171,7 +171,7 @@ document.getElementsByClassName('toc')[0]
             var previousHref = book.renderer.currentChapter.href;
 
             if (href.indexOf('#') !== -1 && previousHref.indexOf(href.split('#')[0]) !== -1) { // 说明页面未切换，直接用锚点定位
-                pageYScrollTo(href.split('#')[1]);
+                QiuSettings.pageMode ? book.goto(href) : pageYScrollTo(href.split('#')[1]); // 垂直滚动模式下需要定位到锚点位置
             } else {
                 book.goto(href).then(function () {
                     if (href.indexOf('#') !== -1 && QiuSettings.pageMode === false) {
