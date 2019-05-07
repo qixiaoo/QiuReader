@@ -9,11 +9,18 @@ document.addEventListener('mouseup', function (e) {
 function selected(e) {
     var x = e.clientX,
         y = e.clientY,
-        menu = window.parent.document.getElementById('select-menu'),
-        menuHeight = window.parent.document.defaultView.getComputedStyle(menu, null).height,
-        menuWidth = window.parent.document.defaultView.getComputedStyle(menu, null).width,
-        screenHeight = window.parent.screen.availHeight,
-        screenWidth = window.parent.screen.availWidth;
+        parentWin = window.parent,
+        menu = parentWin.document.getElementById('select-menu'),
+        tocSide = parentWin.document.getElementsByClassName('toc-side')[0],
+        tocSideWidth = parentWin.document.defaultView.getComputedStyle(tocSide, null).width,
+        menuHeight = parentWin.document.defaultView.getComputedStyle(menu, null).height,
+        menuWidth = parentWin.document.defaultView.getComputedStyle(menu, null).width,
+        screenHeight = parentWin.screen.availHeight,
+        screenWidth = parentWin.screen.availWidth;
+
+    x = parentWin.QiuSettings.sideToc ? x + parseInt(tocSideWidth) : x;
+    x = parentWin.QiuSettings.pageMode ? x + parseInt(parentWin.QiuSettings.hLRMargin) : x;
+    y = parentWin.QiuSettings.pageMode ? y + parseInt(parentWin.QiuSettings.hTBMargin) : y;
 
     menuHeight = parseInt(menuHeight);
     menuWidth = parseInt(menuWidth);
@@ -35,8 +42,7 @@ function selected(e) {
 // 解决复制粘贴问题的 hack
 document.addEventListener('keydown', function (e) {
     var key = e.keyCode || e.which;
-    if (key === 67 && e.ctrlKey)
-    {
+    if (key === 67 && e.ctrlKey) {
         document.execCommand('copy', false, null);
     }
 });
